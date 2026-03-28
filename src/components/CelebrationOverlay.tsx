@@ -12,11 +12,12 @@ export function CelebrationOverlay({ show }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (show) {
-      const timer = setTimeout(() => setVisible(true), 500);
-      return () => clearTimeout(timer);
-    }
-    setVisible(false);
+    if (!show) return;
+    const timer = setTimeout(() => setVisible(true), 500);
+    return () => {
+      clearTimeout(timer);
+      setVisible(false);
+    };
   }, [show]);
 
   const handleLanded = useCallback(() => {
