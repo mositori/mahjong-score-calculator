@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { yakuList, doraList } from '../logic/yakuList';
 import { Button } from './ui/button';
+import { TileDisplay } from './TileDisplay';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -57,6 +58,7 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
                       <span className="text-xs font-bold text-primary">+{han}翻</span>
                     </div>
                     <span className="text-xs text-muted-foreground">{yaku.description}</span>
+                    {yaku.example && <TileDisplay example={yaku.example} />}
                   </div>
                   <div className="flex items-center gap-2 ml-3">
                     <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, -1, yaku.maxCount ?? 4)}>-</Button>
@@ -81,6 +83,7 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
                   <span className="text-xs font-bold text-primary">+{han}翻</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{yaku.description}</span>
+                {yaku.example && <TileDisplay example={yaku.example} />}
               </button>
             );
           })}
