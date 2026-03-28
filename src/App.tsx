@@ -178,7 +178,7 @@ function App() {
   const resultData = useMemo(() => {
     if (state.step !== 'result' || state.isDealer == null || state.isTsumo == null) return null;
     return { ...computeResult(state), isDealer: state.isDealer, isTsumo: state.isTsumo };
-  }, [state.step, state.isDealer, state.isTsumo, state.handType, state.isMenzen, state.yakuSelection, state.fuInputData]);
+  }, [state]);
 
   // useCallback for dispatch wrappers to stabilize references for memoized children
   const handleSetHonba = useCallback((honba: number) => dispatch({ type: 'SET_HONBA', honba }), []);
