@@ -1,4 +1,6 @@
-import { calculateScore } from '../logic/scoreCalculator';
+import { useEffect, useRef, useState } from 'react';
+import confetti from 'canvas-confetti';
+import { calculateScore, getTierName, getBasePoints } from '../logic/scoreCalculator';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -12,45 +14,116 @@ type Props = {
   onReset: () => void;
 };
 
+function useCountUp(target: number, duration = 800): number {
+  const [value, setValue] = useState(0);
+  const startTime = useRef(0);
+
+  useEffect(() => {
+    if (target === 0) return;
+    startTime.current = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration]);
+
+  return value;
+}
+
+function fireConfetti(tierName: string | null) {
+  if (!tierName) return;
+
+  const base = { disableForReducedMotion: true, zIndex: 9999 };
+
+  switch (tierName) {
+    case '満貫':
+      confetti({ ...base, particleCount: 40, spread: 55, origin: { y: 0.7 } });
+      break;
+    case '跳満':
+      confetti({ ...base, particleCount: 70, spread: 70, origin: { y: 0.65 } });
+      break;
+    case '倍満':
+      confetti({ ...base, particleCount: 100, spread: 80, origin: { y: 0.6 } });
+      setTimeout(() => confetti({ ...base, particleCount: 50, spread: 100, origin: { y: 0.7 } }), 300);
+      break;
+    case '三倍満':
+      confetti({ ...base, particleCount: 120, spread: 90, origin: { y: 0.6 }, colors: ['#FFD700', '#FFA500', '#FF6347'] });
+      setTimeout(() => confetti({ ...base, particleCount: 80, spread: 120, origin: { y: 0.5 }, colors: ['#FFD700', '#FFA500'] }), 400);
+      break;
+    case '役満': {
+      // Full screen burst
+      const fire = (opts: confetti.Options) => confetti({ ...base, ...opts });
+      fire({ particleCount: 80, spread: 100, origin: { x: 0.3, y: 0.5 }, colors: ['#FFD700', '#FF0000', '#FF6347'] });
+      fire({ particleCount: 80, spread: 100, origin: { x: 0.7, y: 0.5 }, colors: ['#FFD700', '#FF0000', '#FF6347'] });
+      setTimeout(() => {
+        fire({ particleCount: 100, spread: 160, origin: { y: 0.4 }, colors: ['#FFD700', '#FFA500', '#FF0000', '#FF6347'] });
+      }, 300);
+      setTimeout(() => {
+        fire({ particleCount: 60, spread: 120, origin: { y: 0.6 }, colors: ['#FFD700', '#FFA500'] });
+      }, 600);
+      break;
+    }
+  }
+}
+
+function ScoreValue({ value, label }: { value: number; label: string }) {
+  const displayed = useCountUp(value, 600);
+  return (
+    <div className="flex justify-between items-center py-3 border-b last:border-b-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-2xl font-bold tabular-nums">{displayed.toLocaleString()}点</span>
+    </div>
+  );
+}
+
 export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: Props) {
   const result = calculateScore(isDealer, isTsumo, han, fu);
+  const base = getBasePoints(han, fu);
+  const tierName = getTierName(base);
+  const isYakuman = tierName === '役満';
+  const hasFired = useRef(false);
+
+  useEffect(() => {
+    if (!hasFired.current) {
+      hasFired.current = true;
+      fireConfetti(tierName);
+    }
+  }, [tierName]);
 
   return (
     <div className="step-animate">
-      <Card>
+      {/* Flash overlay for yakuman */}
+      {isYakuman && <div className="yakuman-flash" />}
+
+      <Card className={isYakuman ? 'ring-2 ring-primary shadow-lg' : ''}>
         <CardHeader className="text-center pb-2">
-          {result.tierName && (
-            <CardTitle className="text-3xl text-primary">{result.tierName}</CardTitle>
+          {tierName && (
+            <CardTitle className={`text-3xl text-primary ${isYakuman ? 'yakuman-pulse' : ''}`}>
+              {tierName}
+            </CardTitle>
           )}
         </CardHeader>
         <CardContent>
           {result.ronPayment != null && (
-            <div className="flex justify-between items-center py-3 border-b">
-              <span className="text-sm text-muted-foreground">放銃者の支払い</span>
-              <span className="text-2xl font-bold">{result.ronPayment.toLocaleString()}点</span>
-            </div>
+            <ScoreValue value={result.ronPayment} label="放銃者の支払い" />
           )}
 
           {isTsumo && isDealer && result.tsumoPaymentNonDealer != null && (
-            <div className="flex justify-between items-center py-3 border-b">
-              <span className="text-sm text-muted-foreground">子の支払い（各自）</span>
-              <span className="text-2xl font-bold">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
-            </div>
+            <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" />
           )}
 
           {isTsumo && !isDealer && (
             <>
               {result.tsumoPaymentDealer != null && (
-                <div className="flex justify-between items-center py-3 border-b">
-                  <span className="text-sm text-muted-foreground">親の支払い</span>
-                  <span className="text-2xl font-bold">{result.tsumoPaymentDealer.toLocaleString()}点</span>
-                </div>
+                <ScoreValue value={result.tsumoPaymentDealer} label="親の支払い" />
               )}
               {result.tsumoPaymentNonDealer != null && (
-                <div className="flex justify-between items-center py-3">
-                  <span className="text-sm text-muted-foreground">子の支払い（各自）</span>
-                  <span className="text-2xl font-bold">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
-                </div>
+                <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" />
               )}
             </>
           )}
