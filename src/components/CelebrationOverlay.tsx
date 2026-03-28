@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import confetti from 'canvas-confetti';
-import celebrationImg from '@/assets/celebration.png';
+import celebrationImg from '@/assets/IMG_5475.jpeg';
 
 type Props = {
   show: boolean;
