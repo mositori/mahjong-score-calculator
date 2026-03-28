@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import celebrationImg from '@/assets/IMG_5475.jpeg';
+import hanemanImg from '@/assets/IMG_4948.jpeg';
 
 type Props = {
   show: boolean;
+  tierName?: string | null;
 };
 
-export function CelebrationOverlay({ show }: Props) {
+export function CelebrationOverlay({ show, tierName }: Props) {
   const prefersReduced = useReducedMotion();
   const [visible, setVisible] = useState(false);
 
@@ -76,7 +78,7 @@ export function CelebrationOverlay({ show }: Props) {
               }}
             >
               <motion.img
-                src={celebrationImg}
+                src={tierName === '跳満' ? hanemanImg : celebrationImg}
                 alt="Celebration!"
                 className="max-w-[280px] w-[70vw] rounded-xl shadow-2xl"
                 animate={

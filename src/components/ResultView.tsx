@@ -118,7 +118,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onRes
       {isYakuman && <div className="yakuman-flash" />}
 
       {/* Celebration image for 12000+ points */}
-      <CelebrationOverlay show={showCelebration} />
+      <CelebrationOverlay show={showCelebration} tierName={tierName} />
 
       <motion.div
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 30, scale: 0.95 }}
