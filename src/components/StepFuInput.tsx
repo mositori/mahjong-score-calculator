@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
 
@@ -6,25 +6,35 @@ type Props = {
   onSubmit: (data: FuInputData) => void;
 };
 
-type MentsuType = { id: string; fu: number };
-
-type MentsuRow = {
-  rowLabel: string;
-  chun: MentsuType;
-  yao: MentsuType;
+type MentsuEntry = {
+  count: 3 | 4;        // 刻子 or 槓子
+  isConcealed: boolean; // 暗 or 明
+  isTerminal: boolean;  // 么九牌 or 中張牌
 };
 
-const koutsuRows: MentsuRow[] = [
-  { rowLabel: 'ポン（明）', chun: { id: 'minko_chun', fu: 2 }, yao: { id: 'minko_yao', fu: 4 } },
-  { rowLabel: '自力（暗）', chun: { id: 'anko_chun', fu: 4 }, yao: { id: 'anko_yao', fu: 8 } },
-];
+function getFu(entry: MentsuEntry): number {
+  // base: 明刻 中張 = 2
+  let fu = 2;
+  if (entry.isConcealed) fu *= 2;   // 暗 → ×2
+  if (entry.isTerminal) fu *= 2;    // 么九 → ×2
+  if (entry.count === 4) fu *= 4;   // 槓子 → ×4
+  return fu;
+}
 
-const kantsuRows: MentsuRow[] = [
-  { rowLabel: '大明槓・加槓', chun: { id: 'minkan_chun', fu: 8 }, yao: { id: 'minkan_yao', fu: 16 } },
-  { rowLabel: '暗槓', chun: { id: 'ankan_chun', fu: 16 }, yao: { id: 'ankan_yao', fu: 32 } },
-];
+function getMentsuLabel(entry: MentsuEntry): string {
+  const type = entry.count === 4
+    ? (entry.isConcealed ? '暗槓' : '明槓')
+    : (entry.isConcealed ? '暗刻' : '明刻');
+  const tile = entry.isTerminal ? '么九牌' : '中張牌';
+  return `${type}（${tile}）`;
+}
 
-const allMentsu = [...koutsuRows, ...kantsuRows].flatMap((r) => [r.chun, r.yao]);
+type WizardPhase =
+  | 'ask-has-mentsu'
+  | 'ask-count'
+  | 'ask-concealed'
+  | 'ask-terminal'
+  | 'list';
 
 function HelpToggle({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
@@ -46,57 +56,26 @@ function HelpToggle({ text }: { text: string }) {
   );
 }
 
-function CellCounter({ fu, value, onChange, disableIncrement }: {
-  fu: number; value: number; onChange: (v: number) => void; disableIncrement: boolean;
+function MentsuCard({ entry, index, onRemove }: {
+  entry: MentsuEntry; index: number; onRemove: () => void;
 }) {
+  const fu = getFu(entry);
   return (
-    <div className="flex flex-col items-center gap-1 py-2 px-1">
-      <span className="text-xs text-muted-foreground">+{fu}符</span>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="counter" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0}>-</Button>
-        <span className="w-5 text-center font-bold text-sm">{value}</span>
-        <Button variant="outline" size="counter" onClick={() => onChange(Math.min(4, value + 1))} disabled={disableIncrement}>+</Button>
+    <div className="flex items-center justify-between px-4 py-3 bg-card border rounded-lg">
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-bold text-muted-foreground w-5">{index + 1}.</span>
+        <div>
+          <div className="text-sm font-bold">{getMentsuLabel(entry)}</div>
+          <div className="text-xs text-muted-foreground">+{fu}符</div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function MentsuGrid({ rows, counts, onChange, disableIncrement }: {
-  rows: MentsuRow[];
-  counts: Record<string, number>;
-  onChange: (id: string, v: number) => void;
-  disableIncrement: boolean;
-}) {
-  return (
-    <div className="grid grid-cols-[auto_1fr_1fr] border rounded-lg overflow-hidden bg-card">
-      {/* Column headers */}
-      <div className="bg-muted/50 border-b" />
-      <div className="text-xs font-semibold text-center py-2 px-1 bg-muted/50 border-b border-l">中張牌（2〜8）</div>
-      <div className="text-xs font-semibold text-center py-2 px-1 bg-muted/50 border-b border-l">么九牌（1,9,字）</div>
-      {/* Rows */}
-      {rows.map((row, i) => (
-        <Fragment key={row.rowLabel}>
-          <div className={`flex items-center px-3 text-xs font-semibold whitespace-nowrap ${i > 0 ? 'border-t' : ''}`}>
-            {row.rowLabel}
-          </div>
-          <div className={`flex justify-center border-l ${i > 0 ? 'border-t' : ''}`}>
-            <CellCounter
-              fu={row.chun.fu}
-              value={counts[row.chun.id] ?? 0}
-              onChange={(v) => onChange(row.chun.id, v)}
-              disableIncrement={disableIncrement && (counts[row.chun.id] ?? 0) === 0}
-            />
-          </div>
-          <div className={`flex justify-center border-l ${i > 0 ? 'border-t' : ''}`}>
-            <CellCounter
-              fu={row.yao.fu}
-              value={counts[row.yao.id] ?? 0}
-              onChange={(v) => onChange(row.yao.id, v)}
-              disableIncrement={disableIncrement && (counts[row.yao.id] ?? 0) === 0}
-            />
-          </div>
-        </Fragment>
-      ))}
+      <button
+        className="text-xs text-muted-foreground hover:text-destructive px-2 py-1"
+        onClick={onRemove}
+        aria-label="削除"
+      >
+        ✕
+      </button>
     </div>
   );
 }
@@ -104,24 +83,50 @@ function MentsuGrid({ rows, counts, onChange, disableIncrement }: {
 export function StepFuInput({ onSubmit }: Props) {
   const [waitType, setWaitType] = useState<'open' | 'closed'>('open');
   const [isYakuhaiHead, setIsYakuhaiHead] = useState(false);
-  const [counts, setCounts] = useState<Record<string, number>>({});
-  const [showKan, setShowKan] = useState(false);
 
-  const mentsuFu = allMentsu.reduce(
-    (sum, m) => sum + m.fu * (counts[m.id] ?? 0), 0,
-  );
+  // Mentsu wizard state
+  const [entries, setEntries] = useState<MentsuEntry[]>([]);
+  const [phase, setPhase] = useState<WizardPhase>('ask-has-mentsu');
 
-  const totalMentsuCount = allMentsu.reduce(
-    (sum, m) => sum + (counts[m.id] ?? 0), 0,
-  );
+  // Current mentsu being built
+  const [currentCount, setCurrentCount] = useState<3 | 4 | null>(null);
+  const [currentConcealed, setCurrentConcealed] = useState<boolean | null>(null);
 
-  const maxReached = totalMentsuCount >= 4;
+  const mentsuFu = entries.reduce((sum, e) => sum + getFu(e), 0);
 
-  const handleCountChange = (id: string, v: number) => {
-    const current = counts[id] ?? 0;
-    const diff = v - current;
-    if (diff > 0 && totalMentsuCount + diff > 4) return;
-    setCounts({ ...counts, [id]: v });
+  const startAddMentsu = () => {
+    setCurrentCount(null);
+    setCurrentConcealed(null);
+    setPhase('ask-count');
+  };
+
+  const handleSetCount = (count: 3 | 4) => {
+    setCurrentCount(count);
+    setPhase('ask-concealed');
+  };
+
+  const handleSetConcealed = (concealed: boolean) => {
+    setCurrentConcealed(concealed);
+    setPhase('ask-terminal');
+  };
+
+  const handleSetTerminal = (terminal: boolean) => {
+    const newEntry: MentsuEntry = {
+      count: currentCount!,
+      isConcealed: currentConcealed!,
+      isTerminal: terminal,
+    };
+    const newEntries = [...entries, newEntry];
+    setEntries(newEntries);
+    setPhase('list');
+  };
+
+  const removeMentsu = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    setEntries(newEntries);
+    if (newEntries.length === 0) {
+      setPhase('ask-has-mentsu');
+    }
   };
 
   return (
@@ -182,60 +187,211 @@ export function StepFuInput({ onSubmit }: Props) {
         </div>
       </div>
 
-      {/* 刻子・槓子 */}
+      {/* 刻子・槓子 wizard */}
       <div className="mb-5">
-        <div className="flex items-center mb-2">
+        <div className="flex items-center mb-3">
           <h3 className="text-sm font-bold">刻子・槓子</h3>
           <HelpToggle text="同じ牌3枚の組み合わせが刻子です。自分で揃えたら「暗刻」、ポンしたら「明刻」。1・9・字牌の刻子は中張牌（2〜8）より符が高くなります。槓子（4枚）はさらに高い符がつきます。" />
         </div>
-        <Button
-          variant="secondary"
-          className="w-full mb-3 text-sm"
-          onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu: 0 })}
-        >
-          刻子なし（順子のみ）→ 次へ
-        </Button>
 
-        <h4 className="text-xs font-semibold text-muted-foreground mb-1">刻子</h4>
-        <MentsuGrid
-          rows={koutsuRows}
-          counts={counts}
-          onChange={handleCountChange}
-          disableIncrement={maxReached}
-        />
-
-        {!showKan ? (
-          <button
-            className="w-full mt-3 py-2 text-xs text-muted-foreground border border-dashed rounded-lg"
-            onClick={() => setShowKan(true)}
-          >
-            槓子がある
-          </button>
-        ) : (
-          <div className="mt-3">
-            <h4 className="text-xs font-semibold text-muted-foreground mb-1">槓子</h4>
-            <MentsuGrid
-              rows={kantsuRows}
-              counts={counts}
-              onChange={handleCountChange}
-              disableIncrement={maxReached}
-            />
+        {phase === 'ask-has-mentsu' && (
+          <div>
+            <p className="text-sm text-center mb-4 text-muted-foreground">
+              同じ牌3枚以上の組み合わせはありますか？
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="h-14 text-base font-bold"
+                onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu: 0 })}
+              >
+                なし（順子のみ）
+              </Button>
+              <Button
+                variant="outline"
+                className="h-14 text-base font-bold"
+                onClick={startAddMentsu}
+              >
+                ある
+              </Button>
+            </div>
           </div>
         )}
 
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">面子: {totalMentsuCount}/4</span>
-          {mentsuFu > 0 && (
-            <span className="text-sm font-bold text-primary">
-              刻子・槓子の符: +{mentsuFu}
-            </span>
-          )}
-        </div>
+        {phase === 'ask-count' && (
+          <div>
+            <p className="text-sm text-center mb-1 font-bold">
+              {entries.length + 1}組目
+            </p>
+            <p className="text-sm text-center mb-4 text-muted-foreground">
+              何枚の組み合わせ？
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetCount(3)}
+              >
+                <div>
+                  <div className="text-base font-bold">3枚（刻子）</div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">ポンや暗刻</div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetCount(4)}
+              >
+                <div>
+                  <div className="text-base font-bold">4枚（槓子）</div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">カンした牌</div>
+                </div>
+              </Button>
+            </div>
+            {entries.length > 0 && (
+              <button
+                className="w-full mt-3 text-xs text-muted-foreground underline"
+                onClick={() => setPhase('list')}
+              >
+                やめる
+              </button>
+            )}
+          </div>
+        )}
+
+        {phase === 'ask-concealed' && (
+          <div>
+            <p className="text-sm text-center mb-1 font-bold">
+              {entries.length + 1}組目 — {currentCount === 3 ? '刻子' : '槓子'}
+            </p>
+            <p className="text-sm text-center mb-4 text-muted-foreground">
+              どうやって揃えた？
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetConcealed(false)}
+              >
+                <div>
+                  <div className="text-base font-bold">
+                    {currentCount === 3 ? 'ポンした（明）' : '明槓・加槓'}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                    {currentCount === 3 ? '他家から鳴いた' : '他家から鳴いた or 加槓'}
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetConcealed(true)}
+              >
+                <div>
+                  <div className="text-base font-bold">
+                    {currentCount === 3 ? '自力で揃えた（暗）' : '暗槓'}
+                  </div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                    {currentCount === 3 ? '鳴かずに手牌で揃えた' : '手牌4枚でカン'}
+                  </div>
+                </div>
+              </Button>
+            </div>
+            <button
+              className="w-full mt-3 text-xs text-muted-foreground underline"
+              onClick={() => setPhase('ask-count')}
+            >
+              戻る
+            </button>
+          </div>
+        )}
+
+        {phase === 'ask-terminal' && (
+          <div>
+            <p className="text-sm text-center mb-1 font-bold">
+              {entries.length + 1}組目 — {currentConcealed
+                ? (currentCount === 3 ? '暗刻' : '暗槓')
+                : (currentCount === 3 ? '明刻' : '明槓')}
+            </p>
+            <p className="text-sm text-center mb-4 text-muted-foreground">
+              どんな牌？
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetTerminal(false)}
+              >
+                <div>
+                  <div className="text-base font-bold">中張牌</div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">2〜8の数牌</div>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-4 text-left justify-start"
+                onClick={() => handleSetTerminal(true)}
+              >
+                <div>
+                  <div className="text-base font-bold">么九牌</div>
+                  <div className="text-xs text-muted-foreground font-normal mt-0.5">1, 9, 字牌</div>
+                </div>
+              </Button>
+            </div>
+            <button
+              className="w-full mt-3 text-xs text-muted-foreground underline"
+              onClick={() => setPhase('ask-concealed')}
+            >
+              戻る
+            </button>
+          </div>
+        )}
+
+        {phase === 'list' && (
+          <div>
+            <div className="flex flex-col gap-2 mb-3">
+              {entries.map((entry, i) => (
+                <MentsuCard
+                  key={i}
+                  entry={entry}
+                  index={i}
+                  onRemove={() => removeMentsu(i)}
+                />
+              ))}
+            </div>
+
+            {entries.length < 4 && (
+              <button
+                className="w-full py-2.5 text-sm text-primary font-semibold border-2 border-dashed border-primary/30 rounded-lg hover:bg-primary/5"
+                onClick={startAddMentsu}
+              >
+                + もう1組追加（{entries.length}/4）
+              </button>
+            )}
+
+            <div className="mt-3 flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">面子: {entries.length}/4</span>
+              {mentsuFu > 0 && (
+                <span className="text-sm font-bold text-primary">
+                  刻子・槓子の符: +{mentsuFu}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
-        次へ
-      </Button>
+      {(phase === 'list' || phase === 'ask-has-mentsu') && phase === 'list' && (
+        <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
+          次へ
+        </Button>
+      )}
+
+      {phase !== 'ask-has-mentsu' && phase !== 'list' && (
+        <p className="text-xs text-center text-muted-foreground mt-2">
+          刻子・槓子の質問に回答すると次に進めます
+        </p>
+      )}
     </>
   );
 }
