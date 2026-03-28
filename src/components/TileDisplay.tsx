@@ -20,7 +20,7 @@ export function TileDisplay({ example }: Props) {
   return (
     <div className="flex items-end gap-1.5 mt-1">
       {groups.map((group, gi) => (
-        <div key={gi} className="flex">
+        <div key={gi} className="flex gap-px">
           {parseTiles(group).map((tile, ti) => (
             <MahjongTile key={ti} tile={tile} />
           ))}

@@ -120,6 +120,26 @@ body {
   100% { opacity: 0; }
 }
 
+.mahjong-tile {
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(to bottom, #f8f6f0, #e8e4da);
+  border: 1px solid #b8b0a0;
+  border-radius: 3px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mahjong-tile {
+    background: linear-gradient(to bottom, #f0ece4, #ddd8cc);
+    border-color: #9a9080;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+}
+
 .yakuman-flash {
   position: fixed;
   inset: 0;

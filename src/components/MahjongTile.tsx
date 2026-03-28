@@ -14,11 +14,19 @@ export function MahjongTile({ tile, size = 'h-8', className }: Props) {
   if (!src) return null;
 
   return (
-    <img
-      src={src}
-      alt={tile}
-      className={cn(size, 'w-auto', className)}
-      draggable={false}
-    />
+    <div
+      className={cn(
+        'mahjong-tile inline-flex items-center justify-center',
+        size,
+        className
+      )}
+    >
+      <img
+        src={src}
+        alt={tile}
+        className="h-[70%] w-auto"
+        draggable={false}
+      />
+    </div>
   );
 }
