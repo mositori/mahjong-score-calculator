@@ -19,7 +19,7 @@ src/
 ├── components/      # React コンポーネント（Step*, ResultView, UI部品）
 ├── logic/           # ビジネスロジック（scoreCalculator, fuCalculator, yakuList）
 ├── lib/             # ユーティリティ（haptics, utils）
-├── assets/          # 画像アセット（tiles/, hero.png, celebration.jpg）
+├── assets/          # 画像アセット（tiles/, hero.png, celebration.png）
 ├── __tests__/       # テストファイル（vitest）
 ├── App.tsx          # メインアプリ（useReducer でステップ管理）
 ├── types.ts         # 型定義
