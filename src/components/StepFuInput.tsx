@@ -31,13 +31,13 @@ function getMentsuLabel(entry: MentsuEntry): string {
 }
 
 type WizardPhase =
-  | 'ask-wait-type'
-  | 'ask-jantou'
   | 'ask-has-mentsu'
   | 'ask-count'
   | 'ask-concealed'
   | 'ask-terminal'
   | 'list';
+
+type JantouChoice = 'sangenpai' | 'kazehai' | 'other';
 
 function HelpToggle({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
@@ -94,17 +94,18 @@ function MentsuCard({ entry, index, onRemove }: {
 
 export function StepFuInput({ onSubmit }: Props) {
   const [waitType, setWaitType] = useState<'open' | 'closed'>('open');
-  const [isYakuhaiHead, setIsYakuhaiHead] = useState(false);
+  const [jantouChoice, setJantouChoice] = useState<JantouChoice>('other');
   const shouldReduceMotion = useReducedMotion();
 
   // Mentsu wizard state
   const [entries, setEntries] = useState<MentsuEntry[]>([]);
-  const [phase, setPhase] = useState<WizardPhase>('ask-wait-type');
+  const [phase, setPhase] = useState<WizardPhase>('ask-has-mentsu');
 
   // Current mentsu being built
   const [currentCount, setCurrentCount] = useState<3 | 4 | null>(null);
   const [currentConcealed, setCurrentConcealed] = useState<boolean | null>(null);
 
+  const isYakuhaiHead = jantouChoice !== 'other';
   const mentsuFu = entries.reduce((sum, e) => sum + getFu(e), 0);
 
   const startAddMentsu = () => {
@@ -162,106 +163,106 @@ export function StepFuInput({ onSubmit }: Props) {
         符の計算
       </motion.h2>
 
+      {/* 待ちの形 */}
       <motion.div
-        className="mb-5"
+        className="mb-5 pb-4 border-b"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, delay: 0.05 }}
       >
+        <div className="flex items-center mb-1">
+          <h3 className="text-sm font-bold">待ちの形</h3>
+          <HelpToggle text="最後のアガリ牌の受け入れが2種類以上なら「2種類以上」です。例: 2-3で1と4待ちは2種類以上（両面）。1-3で2だけ待ちや、1-2で3だけ待ち、1枚だけ待ちは1種類です。" />
+        </div>
+        <p className="text-xs text-muted-foreground mb-2">アガリ牌は何種類ありましたか？</p>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant={waitType === 'open' ? 'selected' : 'unselected'}
+            size="sm"
+            className="h-auto py-2.5 text-xs"
+            onClick={() => setWaitType('open')}
+          >
+            <div>
+              <div className="font-bold">2種類以上</div>
+              <div className="font-normal text-muted-foreground mt-0.5">両面・シャンポンなど</div>
+            </div>
+          </Button>
+          <Button
+            variant={waitType === 'closed' ? 'selected' : 'unselected'}
+            size="sm"
+            className="h-auto py-2.5 text-xs"
+            onClick={() => setWaitType('closed')}
+          >
+            <div>
+              <div className="font-bold">1種類だけ</div>
+              <div className="font-normal text-muted-foreground mt-0.5">嵌張・辺張・単騎</div>
+            </div>
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* 雀頭 */}
+      <motion.div
+        className="mb-5 pb-4 border-b"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.1 }}
+      >
+        <div className="flex items-center mb-1">
+          <h3 className="text-sm font-bold">雀頭（頭）</h3>
+          <HelpToggle text="頭が三元牌（白・發・中）や、場の風・自分の風と同じ風牌の場合は符がつきます。連風牌（例: 東場の東家の東）も該当します。" />
+        </div>
+        <p className="text-xs text-muted-foreground mb-2">頭（2枚の組）はどれですか？</p>
+        <div className="flex flex-col gap-2">
+          <Button
+            variant={jantouChoice === 'sangenpai' ? 'selected' : 'unselected'}
+            size="sm"
+            className="h-auto py-2.5 text-xs text-left justify-start"
+            onClick={() => setJantouChoice('sangenpai')}
+          >
+            <div>
+              <span className="font-bold">白・發・中のどれか</span>
+            </div>
+          </Button>
+          <Button
+            variant={jantouChoice === 'kazehai' ? 'selected' : 'unselected'}
+            size="sm"
+            className="h-auto py-2.5 text-xs text-left justify-start"
+            onClick={() => setJantouChoice('kazehai')}
+          >
+            <div>
+              <span className="font-bold">場の風や自分の風と同じ風牌</span>
+              <span className="font-normal text-muted-foreground ml-1.5">例: 東場なら東</span>
+            </div>
+          </Button>
+          <Button
+            variant={jantouChoice === 'other' ? 'selected' : 'unselected'}
+            size="sm"
+            className="h-auto py-2.5 text-xs text-left justify-start"
+            onClick={() => setJantouChoice('other')}
+          >
+            <div>
+              <span className="font-bold">どれでもない</span>
+            </div>
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* 刻子・槓子 wizard */}
+      <motion.div
+        className="mb-5"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.15 }}
+      >
+        <div className="flex items-center mb-3">
+          <h3 className="text-sm font-bold">刻子・槓子</h3>
+          <HelpToggle text="同じ牌3枚の組み合わせが刻子です。自分で揃えたら「暗刻」、ポンしたら「明刻」。1・9・字牌の刻子は中張牌（2〜8）より符が高くなります。槓子（4枚）はさらに高い符がつきます。" />
+        </div>
+
         <AnimatePresence mode="wait" initial={false}>
-          {/* 待ちの形 */}
-          {phase === 'ask-wait-type' && (
-            <motion.div key="ask-wait-type" {...phaseAnimation}>
-              <div className="flex items-center justify-center mb-1">
-                <h3 className="text-sm font-bold">待ちの形</h3>
-                <HelpToggle text="最後のアガリ牌の受け入れが2種類以上なら「2種類以上」です。例: 2-3で1と4待ちは2種類以上（両面）。1-3で2だけ待ちや、1-2で3だけ待ち、1枚だけ待ちは1種類です。" />
-              </div>
-              <p className="text-sm text-center mb-4 text-muted-foreground">
-                アガリ牌は何種類ありましたか？
-              </p>
-              <div className="flex flex-col gap-3">
-                <Button
-                  variant="outline"
-                  className="h-auto py-4 text-left justify-start"
-                  onClick={() => { setWaitType('open'); setPhase('ask-jantou'); }}
-                >
-                  <div>
-                    <div className="text-base font-bold">2種類以上</div>
-                    <div className="text-xs text-muted-foreground font-normal mt-0.5">待てる牌が2種類以上あった</div>
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-auto py-4 text-left justify-start"
-                  onClick={() => { setWaitType('closed'); setPhase('ask-jantou'); }}
-                >
-                  <div>
-                    <div className="text-base font-bold">1種類だけ</div>
-                    <div className="text-xs text-muted-foreground font-normal mt-0.5">待てる牌は1種類だけだった</div>
-                  </div>
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* 雀頭 */}
-          {phase === 'ask-jantou' && (
-            <motion.div key="ask-jantou" {...phaseAnimation}>
-              <div className="flex items-center justify-center mb-1">
-                <h3 className="text-sm font-bold">雀頭（頭）</h3>
-                <HelpToggle text="頭が三元牌（白・發・中）や、場の風・自分の風と同じ風牌の場合は符がつきます。連風牌（例: 東場の東家の東）も該当します。" />
-              </div>
-              <p className="text-sm text-center mb-4 text-muted-foreground">
-                頭（2枚の組）はどれですか？
-              </p>
-              <div className="flex flex-col gap-3">
-                <Button
-                  variant="outline"
-                  className="h-auto py-4 text-left justify-start"
-                  onClick={() => { setIsYakuhaiHead(true); setPhase('ask-has-mentsu'); }}
-                >
-                  <div>
-                    <div className="text-base font-bold">白・發・中のどれか</div>
-                    <div className="text-xs text-muted-foreground font-normal mt-0.5">三元牌が頭</div>
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-auto py-4 text-left justify-start"
-                  onClick={() => { setIsYakuhaiHead(true); setPhase('ask-has-mentsu'); }}
-                >
-                  <div>
-                    <div className="text-base font-bold">場の風や自分の風と同じ風牌</div>
-                    <div className="text-xs text-muted-foreground font-normal mt-0.5">例: 東場なら東、南家なら南</div>
-                  </div>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="h-auto py-4 text-left justify-start"
-                  onClick={() => { setIsYakuhaiHead(false); setPhase('ask-has-mentsu'); }}
-                >
-                  <div>
-                    <div className="text-base font-bold">どれでもない</div>
-                    <div className="text-xs text-muted-foreground font-normal mt-0.5">数牌やその他の風牌が頭</div>
-                  </div>
-                </Button>
-              </div>
-              <button
-                className="w-full mt-3 text-xs text-muted-foreground underline"
-                onClick={() => setPhase('ask-wait-type')}
-              >
-                戻る
-              </button>
-            </motion.div>
-          )}
-
-          {/* 刻子・槓子 wizard */}
           {phase === 'ask-has-mentsu' && (
             <motion.div key="ask-has-mentsu" {...phaseAnimation}>
-              <div className="flex items-center justify-center mb-1">
-                <h3 className="text-sm font-bold">刻子・槓子</h3>
-                <HelpToggle text="同じ牌3枚の組み合わせが刻子です。自分で揃えたら「暗刻」、ポンしたら「明刻」。1・9・字牌の刻子は中張牌（2〜8）より符が高くなります。槓子（4枚）はさらに高い符がつきます。" />
-              </div>
               <p className="text-sm text-center mb-4 text-muted-foreground">
                 同じ牌3枚以上の組み合わせはありますか？
               </p>
@@ -281,12 +282,6 @@ export function StepFuInput({ onSubmit }: Props) {
                   ある
                 </Button>
               </div>
-              <button
-                className="w-full mt-3 text-xs text-muted-foreground underline"
-                onClick={() => setPhase('ask-jantou')}
-              >
-                戻る
-              </button>
             </motion.div>
           )}
 
@@ -475,7 +470,7 @@ export function StepFuInput({ onSubmit }: Props) {
         </motion.div>
       )}
 
-      {phase !== 'ask-wait-type' && phase !== 'ask-jantou' && phase !== 'ask-has-mentsu' && phase !== 'list' && (
+      {phase !== 'ask-has-mentsu' && phase !== 'list' && (
         <p className="text-xs text-center text-muted-foreground mt-2">
           刻子・槓子の質問に回答すると次に進めます
         </p>
