@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { calculateScore, getTierName, getBasePoints } from '../logic/scoreCalculator';
+import { calculateScore, getTierName, getBasePoints, getTotalPoints } from '../logic/scoreCalculator';
+import { CelebrationOverlay } from './CelebrationOverlay';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -88,6 +89,8 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onR
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
   const isYakuman = tierName === '役満';
+  const totalPoints = getTotalPoints(result, isDealer, isTsumo);
+  const showCelebration = totalPoints >= 12000;
   const hasFired = useRef(false);
 
   useEffect(() => {
@@ -102,6 +105,9 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onR
     <>
       {/* Flash overlay for yakuman */}
       {isYakuman && <div className="yakuman-flash" />}
+
+      {/* Celebration image for 12000+ points */}
+      <CelebrationOverlay show={showCelebration} />
 
       <Card className={isYakuman ? 'ring-2 ring-primary shadow-lg' : ''}>
         <CardHeader className="text-center pb-2">
