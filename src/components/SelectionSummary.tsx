@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import type { State } from '../types';
 
 type Props = {
@@ -32,10 +33,16 @@ export function SelectionSummary({ state }: Props) {
   return (
     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 flex-wrap">
       {items.map((item, i) => (
-        <span key={i} className="flex items-center gap-1.5">
+        <motion.span
+          key={`${item}-${i}`}
+          className="flex items-center gap-1.5"
+          initial={{ opacity: 0, x: -5 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2, delay: i * 0.03 }}
+        >
           {i > 0 && <span className="text-muted-foreground/50">›</span>}
           <span>{item}</span>
-        </span>
+        </motion.span>
       ))}
     </div>
   );

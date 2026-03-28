@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'motion/react';
 import type { Step, HandType } from '../types';
 
 type Props = {
@@ -21,12 +22,18 @@ function getProgress(step: Step, handType: HandType | null): number {
 
 export function ProgressBar({ step, handType }: Props) {
   const progress = getProgress(step, handType);
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="h-1 bg-muted rounded-full mb-4 overflow-hidden">
-      <div
-        className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
-        style={{ width: `${progress * 100}%` }}
+      <motion.div
+        className="h-full bg-primary rounded-full"
+        initial={false}
+        animate={{ width: `${progress * 100}%` }}
+        transition={shouldReduceMotion
+          ? { duration: 0 }
+          : { type: 'spring', stiffness: 300, damping: 30 }
+        }
       />
     </div>
   );

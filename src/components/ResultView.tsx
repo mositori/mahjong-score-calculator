@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { calculateScore, getTierName, getBasePoints } from '../logic/scoreCalculator';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -73,13 +74,19 @@ function fireConfetti(tierName: string | null) {
   }
 }
 
-function ScoreValue({ value, label }: { value: number; label: string }) {
+function ScoreValue({ value, label, index }: { value: number; label: string; index: number }) {
   const displayed = useCountUp(value, 600);
+  const shouldReduceMotion = useReducedMotion();
   return (
-    <div className="flex justify-between items-center py-3 border-b last:border-b-0">
+    <motion.div
+      className="flex justify-between items-center py-3 border-b last:border-b-0"
+      initial={shouldReduceMotion ? undefined : { opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3, delay: 0.3 + index * 0.1, ease: [0.25, 0.1, 0.25, 1] as const }}
+    >
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-2xl font-bold tabular-nums">{displayed.toLocaleString()}点</span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -89,6 +96,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onR
   const tierName = getTierName(base);
   const isYakuman = tierName === '役満';
   const hasFired = useRef(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!hasFired.current) {
@@ -98,59 +106,103 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onR
     }
   }, [tierName]);
 
+  let scoreIndex = 0;
+
   return (
     <>
       {/* Flash overlay for yakuman */}
       {isYakuman && <div className="yakuman-flash" />}
 
-      <Card className={isYakuman ? 'ring-2 ring-primary shadow-lg' : ''}>
-        <CardHeader className="text-center pb-2">
-          {tierName && (
-            <CardTitle className={`text-3xl text-primary ${isYakuman ? 'yakuman-pulse' : ''}`}>
-              {tierName}
-            </CardTitle>
-          )}
-        </CardHeader>
-        <CardContent>
-          {result.ronPayment != null && (
-            <ScoreValue value={result.ronPayment} label="放銃者の支払い" />
-          )}
+      <motion.div
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
+      >
+        <Card className={isYakuman ? 'ring-2 ring-primary shadow-lg' : ''}>
+          <CardHeader className="text-center pb-2">
+            {tierName && (
+              <motion.div
+                initial={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={shouldReduceMotion ? { duration: 0 } : {
+                  duration: 0.5,
+                  delay: 0.15,
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 15,
+                }}
+              >
+                <CardTitle className={`text-3xl text-primary ${isYakuman ? 'yakuman-pulse' : ''}`}>
+                  {tierName}
+                </CardTitle>
+              </motion.div>
+            )}
+          </CardHeader>
+          <CardContent>
+            {result.ronPayment != null && (
+              <ScoreValue value={result.ronPayment} label="放銃者の支払い" index={scoreIndex++} />
+            )}
 
-          {isTsumo && isDealer && result.tsumoPaymentNonDealer != null && (
-            <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" />
-          )}
+            {isTsumo && isDealer && result.tsumoPaymentNonDealer != null && (
+              <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" index={scoreIndex++} />
+            )}
 
-          {isTsumo && !isDealer && (
-            <>
-              {result.tsumoPaymentDealer != null && (
-                <ScoreValue value={result.tsumoPaymentDealer} label="親の支払い" />
-              )}
-              {result.tsumoPaymentNonDealer != null && (
-                <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" />
-              )}
-            </>
-          )}
+            {isTsumo && !isDealer && (
+              <>
+                {result.tsumoPaymentDealer != null && (
+                  <ScoreValue value={result.tsumoPaymentDealer} label="親の支払い" index={scoreIndex++} />
+                )}
+                {result.tsumoPaymentNonDealer != null && (
+                  <ScoreValue value={result.tsumoPaymentNonDealer} label="子の支払い（各自）" index={scoreIndex++} />
+                )}
+              </>
+            )}
 
-          <div className="text-center text-xs text-muted-foreground mt-4">
-            {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
-          </div>
+            <motion.div
+              className="text-center text-xs text-muted-foreground mt-4"
+              initial={shouldReduceMotion ? undefined : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            >
+              {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
+            </motion.div>
 
-          {breakdown.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 justify-center mt-3">
-              {breakdown.map((item, i) => (
-                <Badge key={i} variant="accent">{item}</Badge>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            {breakdown.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 justify-center mt-3">
+                {breakdown.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: 0.6 + i * 0.05, ease: [0.25, 0.1, 0.25, 1] as const }}
+                  >
+                    <Badge variant="accent">{item}</Badge>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      <Button className="w-full mt-5" size="lg" onClick={onResetKeepDealer}>
-        もう一局
-      </Button>
-      <Button variant="secondary" className="w-full mt-2" size="lg" onClick={onReset}>
-        最初からやり直す
-      </Button>
+      <motion.div
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] as const }}
+      >
+        <Button className="w-full mt-5" size="lg" onClick={onResetKeepDealer}>
+          もう一局
+        </Button>
+      </motion.div>
+      <motion.div
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.9, ease: [0.25, 0.1, 0.25, 1] as const }}
+      >
+        <Button variant="secondary" className="w-full mt-2" size="lg" onClick={onReset}>
+          最初からやり直す
+        </Button>
+      </motion.div>
     </>
   );
 }
