@@ -189,7 +189,7 @@ function App() {
         className="text-2xl font-bold text-center text-primary mb-4"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         麻雀点数計算
       </motion.h1>
@@ -209,7 +209,7 @@ function App() {
             initial={shouldReduceMotion ? undefined : { opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.15 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 35 }}
           >
             <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
               ← 戻る
@@ -227,7 +227,7 @@ function App() {
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
         >
           {state.step === 'dealer' && (
             <StepDealer

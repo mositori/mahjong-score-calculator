@@ -41,7 +41,7 @@ export function SelectionSummary({ state }: Props) {
           className="flex items-center gap-1.5"
           initial={{ opacity: 0, x: -5 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2, delay: i * 0.03 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30, delay: i * 0.03 }}
         >
           {i > 0 && <span className="text-muted-foreground/50">›</span>}
           <span>{item}</span>

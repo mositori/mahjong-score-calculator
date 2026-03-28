@@ -58,7 +58,7 @@ function HelpToggle({ text }: { text: string }) {
             initial={shouldReduceMotion ? undefined : { opacity: 0, height: 0, marginTop: 0 }}
             animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
           >
             {text}
           </motion.p>
@@ -157,7 +157,7 @@ export function StepFuInput({ onSubmit }: Props) {
         initial: { opacity: 0, y: 10 } as const,
         animate: { opacity: 1, y: 0 } as const,
         exit: { opacity: 0, y: -10 } as const,
-        transition: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const },
+        transition: { type: 'spring' as const, stiffness: 400, damping: 30 },
       };
 
   return (
@@ -166,7 +166,7 @@ export function StepFuInput({ onSubmit }: Props) {
         className="text-xl font-bold text-center mb-5"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         符の計算
       </motion.h2>
@@ -176,7 +176,7 @@ export function StepFuInput({ onSubmit }: Props) {
         className="mb-5 pb-4 border-b"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.05 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.05 }}
       >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">待ちの形</h3>
@@ -215,7 +215,7 @@ export function StepFuInput({ onSubmit }: Props) {
         className="mb-5 pb-4 border-b scroll-mt-4"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.1 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
       >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">雀頭（頭）</h3>
@@ -263,7 +263,7 @@ export function StepFuInput({ onSubmit }: Props) {
         className="mb-5 scroll-mt-4"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, delay: 0.15 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.15 }}
       >
         <div className="flex items-center mb-3">
           <h3 className="text-sm font-bold">刻子・槓子</h3>
@@ -433,7 +433,7 @@ export function StepFuInput({ onSubmit }: Props) {
                       initial={shouldReduceMotion ? undefined : { opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] as const }}
+                      transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
                     >
                       <MentsuCard
                         entry={entry}
@@ -472,7 +472,7 @@ export function StepFuInput({ onSubmit }: Props) {
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
         >
           <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
             次へ

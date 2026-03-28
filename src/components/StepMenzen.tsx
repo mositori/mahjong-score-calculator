@@ -13,7 +13,7 @@ export function StepMenzen({ onSelect }: Props) {
         className="text-xl font-bold text-center mb-2"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         門前ですか？
       </motion.h2>
@@ -21,7 +21,7 @@ export function StepMenzen({ onSelect }: Props) {
         className="text-sm text-muted-foreground text-center mb-6"
         initial={shouldReduceMotion ? undefined : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.25, delay: 0.1 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30, delay: 0.1 }}
       >
         チー・ポン・明カンしていない場合は「門前」
       </motion.p>
@@ -34,7 +34,7 @@ export function StepMenzen({ onSelect }: Props) {
             key={opt.label}
             initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.25, delay: 0.12 + i * 0.06, ease: [0.25, 0.1, 0.25, 1] as const }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30, delay: 0.12 + i * 0.06 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
           >
             <Button variant="outline" className="w-full h-16 text-lg font-bold" onClick={() => onSelect(opt.value)}>

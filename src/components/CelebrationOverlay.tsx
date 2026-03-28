@@ -51,7 +51,7 @@ export function CelebrationOverlay({ show }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             onClick={() => setVisible(false)}
           />
 
@@ -78,7 +78,7 @@ export function CelebrationOverlay({ show }: Props) {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={
                 prefersReduced
-                  ? { duration: 0.3 }
+                  ? { duration: 0 }
                   : { type: 'spring', damping: 10, stiffness: 100 }
               }
               onAnimationComplete={() => {
