@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 
@@ -5,7 +6,7 @@ type Props = {
   onSelect: (isMenzen: boolean) => void;
 };
 
-export function StepMenzen({ onSelect }: Props) {
+export const StepMenzen = memo(function StepMenzen({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div className="flex-1 flex flex-col justify-center pb-[20svh]">
@@ -45,4 +46,4 @@ export function StepMenzen({ onSelect }: Props) {
       </div>
     </div>
   );
-}
+});

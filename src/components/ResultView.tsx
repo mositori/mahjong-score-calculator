@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 
 import confetti from 'canvas-confetti';
@@ -78,7 +78,7 @@ function fireConfetti(tierName: string | null) {
   }
 }
 
-function ScoreValue({ value, label, index }: { value: number; label: string; index: number }) {
+const ScoreValue = memo(function ScoreValue({ value, label, index }: { value: number; label: string; index: number }) {
   const displayed = useCountUp(value, 600);
   const shouldReduceMotion = useReducedMotion();
   return (
@@ -92,9 +92,9 @@ function ScoreValue({ value, label, index }: { value: number; label: string; ind
       <span className="text-2xl font-bold tabular-nums">{displayed.toLocaleString()}点</span>
     </motion.div>
   );
-}
+});
 
-export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBack, onReset, onResetKeepDealer }: Props) {
+export const ResultView = memo(function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBack, onReset, onResetKeepDealer }: Props) {
   const result = calculateScore(isDealer, isTsumo, han, fu, honba);
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
@@ -212,4 +212,4 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
       ))}
     </>
   );
-}
+});

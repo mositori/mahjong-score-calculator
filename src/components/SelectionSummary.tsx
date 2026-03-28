@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion } from 'motion/react';
 import type { State } from '../types';
 
@@ -12,7 +13,7 @@ const handTypeLabels: Record<string, string> = {
   other: 'その他',
 };
 
-export function SelectionSummary({ state }: Props) {
+export const SelectionSummary = memo(function SelectionSummary({ state }: Props) {
   const items: string[] = [];
 
   if (state.isDealer !== null) {
@@ -49,4 +50,4 @@ export function SelectionSummary({ state }: Props) {
       ))}
     </div>
   );
-}
+});

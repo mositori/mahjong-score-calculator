@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { yakuList, doraList, DRAGON_YAKUHAI_IDS } from '../logic/yakuList';
 import { getExcludedYaku, getConflictingYaku } from '../logic/yakuExclusions';
@@ -14,12 +14,12 @@ type Props = {
   onSubmit: (selection: Record<string, number>) => void;
 };
 
-export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
+export const StepYakuSelect = memo(function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
   const [selection, setSelection] = useState<Record<string, number>>({});
 
   const isRiichi = (selection['riichi'] ?? 0) > 0 || (selection['double_riichi'] ?? 0) > 0;
 
-  const toggle = (id: string) => {
+  const toggle = useCallback((id: string) => {
     setSelection((prev) => {
       const newValue = prev[id] ? 0 : 1;
       const next = { ...prev, [id]: newValue };
@@ -30,9 +30,9 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       }
       return next;
     });
-  };
+  }, []);
 
-  const setCount = (id: string, delta: number, max: number) => {
+  const setCount = useCallback((id: string, delta: number, max: number) => {
     setSelection((prev) => {
       const newValue = Math.max(0, Math.min(max, (prev[id] ?? 0) + delta));
       const next = { ...prev, [id]: newValue };
@@ -43,17 +43,17 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       }
       return next;
     });
-  };
+  }, []);
 
   const shouldReduceMotion = useReducedMotion();
   const animProps = itemAnimation(shouldReduceMotion);
 
-  const excluded = getExcludedYaku(handType, selection);
+  const excluded = useMemo(() => getExcludedYaku(handType, selection), [handType, selection]);
 
   // 小三元選択中は三元牌の役牌を常に表示
   const isShousangenSelected = (selection['shousangen'] ?? 0) > 0;
 
-  const visibleYaku = yakuList.filter((yaku) => {
+  const visibleYaku = useMemo(() => yakuList.filter((yaku) => {
     if (yaku.condition === 'menzen' && !isMenzen) return false;
     if (yaku.condition === 'riichi' && !isRiichi) return false;
     if (!isMenzen && yaku.kuisagari === 0) return false;
@@ -65,16 +65,16 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       return false;
     }
     return true;
-  });
+  }), [isMenzen, isRiichi, excluded, isShousangenSelected]);
 
-  const visibleDora = doraList.filter((d) => {
+  const visibleDora = useMemo(() => doraList.filter((d) => {
     if (d.condition === 'riichi' && !isRiichi) return false;
     return true;
-  });
+  }), [isRiichi]);
 
   // 役牌グループとそれ以外を分離
-  const yakuhaiYaku = visibleYaku.filter((y) => y.group === 'yakuhai');
-  const otherYaku = visibleYaku.filter((y) => y.group !== 'yakuhai');
+  const yakuhaiYaku = useMemo(() => visibleYaku.filter((y) => y.group === 'yakuhai'), [visibleYaku]);
+  const otherYaku = useMemo(() => visibleYaku.filter((y) => y.group !== 'yakuhai'), [visibleYaku]);
 
   // 小三元�ント表示判定
   const selectedDragonCount = DRAGON_YAKUHAI_IDS.filter(id => (selection[id] ?? 0) > 0).length;
@@ -211,4 +211,4 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       <Button className="w-full" size="lg" onClick={() => onSubmit(selection)}>計算する</Button>
     </>
   );
-}
+});

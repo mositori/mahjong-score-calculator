@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { State, Action, HandType, FuInputData } from './types';
 
@@ -175,9 +175,22 @@ function App() {
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
   const isForward = state.transitionDirection === 'forward';
-  const resultData = state.step === 'result' && state.isDealer != null && state.isTsumo != null
-    ? { ...computeResult(state), isDealer: state.isDealer, isTsumo: state.isTsumo }
-    : null;
+  const resultData = useMemo(() => {
+    if (state.step !== 'result' || state.isDealer == null || state.isTsumo == null) return null;
+    return { ...computeResult(state), isDealer: state.isDealer, isTsumo: state.isTsumo };
+  }, [state.step, state.isDealer, state.isTsumo, state.handType, state.isMenzen, state.yakuSelection, state.fuInputData]);
+
+  // useCallback for dispatch wrappers to stabilize references for memoized children
+  const handleSetHonba = useCallback((honba: number) => dispatch({ type: 'SET_HONBA', honba }), []);
+  const handleSetDealer = useCallback((isDealer: boolean) => dispatch({ type: 'SET_DEALER', isDealer }), []);
+  const handleSetWinType = useCallback((isTsumo: boolean) => dispatch({ type: 'SET_WIN_TYPE', isTsumo }), []);
+  const handleSetHandType = useCallback((handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType }), []);
+  const handleSetMenzen = useCallback((isMenzen: boolean) => dispatch({ type: 'SET_MENZEN', isMenzen }), []);
+  const handleSetFuInput = useCallback((data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data }), []);
+  const handleSetYaku = useCallback((selection: Record<string, number>) => dispatch({ type: 'SET_YAKU', selection }), []);
+  const handleBack = useCallback(() => dispatch({ type: 'BACK' }), []);
+  const handleReset = useCallback(() => dispatch({ type: 'RESET' }), []);
+  const handleResetKeepDealer = useCallback(() => dispatch({ type: 'RESET_KEEP_DEALER' }), []);
 
   const slideVariants = shouldReduceMotion
     ? { initial: {}, animate: {}, exit: {} }
@@ -215,7 +228,7 @@ function App() {
             exit={{ opacity: 0, x: -10 }}
             transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 35 }}
           >
-            <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
+            <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={handleBack}>
               ← 戻る
             </Button>
           </motion.div>
@@ -236,34 +249,34 @@ function App() {
           {state.step === 'dealer' && (
             <StepDealer
               honba={state.honba}
-              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
-              onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
+              onHonbaChange={handleSetHonba}
+              onSelect={handleSetDealer}
             />
           )}
 
           {state.step === 'winType' && (
             <StepWinType
-              onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })}
+              onSelect={handleSetWinType}
             />
           )}
 
           {state.step === 'handType' && (
-            <StepHandType onSelect={(handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType })} />
+            <StepHandType onSelect={handleSetHandType} />
           )}
 
           {state.step === 'menzen' && (
-            <StepMenzen onSelect={(isMenzen) => dispatch({ type: 'SET_MENZEN', isMenzen })} />
+            <StepMenzen onSelect={handleSetMenzen} />
           )}
 
           {state.step === 'fuInput' && (
-            <StepFuInput onSubmit={(data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data })} />
+            <StepFuInput onSubmit={handleSetFuInput} />
           )}
 
           {state.step === 'yakuSelect' && (
             <StepYakuSelect
               isMenzen={state.isMenzen}
               handType={state.handType}
-              onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
+              onSubmit={handleSetYaku}
             />
           )}
 
@@ -275,9 +288,9 @@ function App() {
                 fu={resultData.fu}
                 honba={state.honba}
                 breakdown={resultData.breakdown}
-                onBack={() => dispatch({ type: 'BACK' })}
-                onReset={() => dispatch({ type: 'RESET' })}
-                onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
+                onBack={handleBack}
+                onReset={handleReset}
+                onResetKeepDealer={handleResetKeepDealer}
               />
           )}
         </motion.div>
