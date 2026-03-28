@@ -2,12 +2,10 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 
 type Props = {
-  honba: number;
-  onHonbaChange: (honba: number) => void;
   onSelect: (isTsumo: boolean) => void;
 };
 
-export function StepWinType({ honba, onHonbaChange, onSelect }: Props) {
+export function StepWinType({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div className="flex-1 flex flex-col justify-center pb-[20svh]">
@@ -38,29 +36,6 @@ export function StepWinType({ honba, onHonbaChange, onSelect }: Props) {
         ))}
       </div>
 
-      <div className="mt-6">
-        <p className="text-sm text-center mb-3 text-muted-foreground">親は何連荘目ですか？</p>
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0 text-lg"
-            disabled={honba === 0}
-            onClick={() => onHonbaChange(honba - 1)}
-          >
-            −
-          </Button>
-          <span className="text-lg font-bold tabular-nums w-6 text-center">{honba}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0 text-lg"
-            onClick={() => onHonbaChange(honba + 1)}
-          >
-            +
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }

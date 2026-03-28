@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
+
 import confetti from 'canvas-confetti';
 import { calculateScore, getTierName, getBasePoints, getTotalPoints } from '../logic/scoreCalculator';
 import { CelebrationOverlay } from './CelebrationOverlay';
@@ -193,33 +194,22 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
         </Card>
       </motion.div>
 
-      <motion.div
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.7 }}
-      >
-        <Button variant="ghost" size="sm" className="w-full mt-4 text-muted-foreground" onClick={onBack}>
-          ← 戻る
-        </Button>
-      </motion.div>
-      <motion.div
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.8 }}
-      >
-        <Button className="w-full mt-2" size="lg" onClick={onResetKeepDealer}>
-          もう一局
-        </Button>
-      </motion.div>
-      <motion.div
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.9 }}
-      >
-        <Button variant="secondary" className="w-full mt-2" size="lg" onClick={onReset}>
-          最初からやり直す
-        </Button>
-      </motion.div>
+      {([
+        { label: '← 戻る', onClick: onBack, variant: 'ghost' as const, size: 'sm' as const, className: 'w-full mt-4 text-muted-foreground' },
+        { label: 'もう一局', onClick: onResetKeepDealer, variant: 'default' as const, size: 'lg' as const, className: 'w-full mt-2' },
+        { label: '最初からやり直す', onClick: onReset, variant: 'secondary' as const, size: 'lg' as const, className: 'w-full mt-2' },
+      ]).map((btn, i) => (
+        <motion.div
+          key={btn.label}
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.7 + i * 0.1 }}
+        >
+          <Button variant={btn.variant} size={btn.size} className={btn.className} onClick={btn.onClick}>
+            {btn.label}
+          </Button>
+        </motion.div>
+      ))}
     </>
   );
 }

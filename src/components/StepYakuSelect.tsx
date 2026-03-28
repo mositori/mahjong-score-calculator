@@ -6,6 +6,7 @@ import type { HandType } from '../types';
 import { Button } from './ui/button';
 import { TileDisplay } from './TileDisplay';
 import { cn } from '@/lib/utils';
+import { itemAnimation } from '@/lib/motion';
 
 type Props = {
   isMenzen: boolean;
@@ -45,14 +46,7 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
   };
 
   const shouldReduceMotion = useReducedMotion();
-  const itemAnimation = shouldReduceMotion
-    ? {}
-    : {
-        initial: { opacity: 0, y: 8 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: -8 },
-        transition: { type: 'spring' as const, stiffness: 400, damping: 30 },
-      };
+  const animProps = itemAnimation(shouldReduceMotion);
 
   const excluded = getExcludedYaku(handType, selection);
 
@@ -100,49 +94,33 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
                 小三元を選択中 — 三元牌の役牌を2つ選択してください
               </div>
             )}
-            <div className="grid grid-cols-3 gap-2 mb-2">
-              {yakuhaiYaku.filter(y => (DRAGON_YAKUHAI_IDS as readonly string[]).includes(y.id)).map((yaku) => {
-                const value = selection[yaku.id] ?? 0;
-                const han = isMenzen ? yaku.han : yaku.kuisagari;
-                return (
-                  <motion.button
-                    key={yaku.id}
-                    layout={!shouldReduceMotion}
-                    {...itemAnimation}
-                    className={cn(
-                      "text-center p-2 rounded-lg border-2 transition-colors",
-                      value ? "border-primary bg-primary/10" : "border-border hover:border-primary/30",
-                      isShousangenSelected && !value && "ring-1 ring-amber-300 dark:ring-amber-700"
-                    )}
-                    onClick={() => toggle(yaku.id)}
-                  >
-                    <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
-                    <span className="text-xs text-muted-foreground ml-1">+{han}翻</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {yakuhaiYaku.filter(y => !(DRAGON_YAKUHAI_IDS as readonly string[]).includes(y.id)).map((yaku) => {
-                const value = selection[yaku.id] ?? 0;
-                const han = isMenzen ? yaku.han : yaku.kuisagari;
-                return (
-                  <motion.button
-                    key={yaku.id}
-                    layout={!shouldReduceMotion}
-                    {...itemAnimation}
-                    className={cn(
-                      "text-center p-2 rounded-lg border-2 transition-colors",
-                      value ? "border-primary bg-primary/10" : "border-border hover:border-primary/30"
-                    )}
-                    onClick={() => toggle(yaku.id)}
-                  >
-                    <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
-                    <span className="text-xs text-muted-foreground ml-1">+{han}翻</span>
-                  </motion.button>
-                );
-              })}
-            </div>
+            {([
+              { items: yakuhaiYaku.filter(y => (DRAGON_YAKUHAI_IDS as readonly string[]).includes(y.id)), cols: 'grid-cols-3', className: 'mb-2', highlightUnselected: isShousangenSelected },
+              { items: yakuhaiYaku.filter(y => !(DRAGON_YAKUHAI_IDS as readonly string[]).includes(y.id)), cols: 'grid-cols-2', className: '', highlightUnselected: false },
+            ] as const).map(({ items, cols, className: gridClass, highlightUnselected }) => (
+              <div key={cols} className={cn("grid gap-2", cols, gridClass)}>
+                {items.map((yaku) => {
+                  const value = selection[yaku.id] ?? 0;
+                  const han = isMenzen ? yaku.han : yaku.kuisagari;
+                  return (
+                    <motion.button
+                      key={yaku.id}
+                      layout={!shouldReduceMotion}
+                      {...animProps}
+                      className={cn(
+                        "text-center p-2 rounded-lg border-2 transition-colors",
+                        value ? "border-primary bg-primary/10" : "border-border hover:border-primary/30",
+                        highlightUnselected && !value && "ring-1 ring-amber-300 dark:ring-amber-700"
+                      )}
+                      onClick={() => toggle(yaku.id)}
+                    >
+                      <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
+                      <span className="text-xs text-muted-foreground ml-1">+{han}翻</span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            ))}
             <p className="text-xs text-muted-foreground mt-2">※ 場風と自風が同じ場合（東場の東家など）は両方選択</p>
           </div>
         </div>
@@ -162,7 +140,7 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
                   <motion.div
                     key={yaku.id}
                     layout={!shouldReduceMotion}
-                    {...itemAnimation}
+                    {...animProps}
                     className="flex items-center justify-between p-3 rounded-lg border bg-card"
                   >
                     <div className="flex-1">
@@ -186,7 +164,7 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
                 <motion.button
                   key={yaku.id}
                   layout={!shouldReduceMotion}
-                  {...itemAnimation}
+                  {...animProps}
                   className={cn(
                     "w-full text-left p-3 rounded-lg border-2 transition-colors",
                     value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/30"
@@ -215,7 +193,7 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
               <motion.div
                 key={d.id}
                 layout={!shouldReduceMotion}
-                {...itemAnimation}
+                {...animProps}
                 className="flex items-center justify-between p-3 rounded-lg border bg-card"
               >
                 <span className="font-bold text-sm">{d.name}</span>

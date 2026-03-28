@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
+import { itemAnimation, staggeredEntry } from '@/lib/motion';
 
 type Props = {
   onSubmit: (data: FuInputData) => void;
@@ -151,14 +152,7 @@ export function StepFuInput({ onSubmit }: Props) {
     }
   };
 
-  const phaseAnimation = shouldReduceMotion
-    ? {}
-    : {
-        initial: { opacity: 0, y: 10 } as const,
-        animate: { opacity: 1, y: 0 } as const,
-        exit: { opacity: 0, y: -10 } as const,
-        transition: { type: 'spring' as const, stiffness: 400, damping: 30 },
-      };
+  const phaseAnimation = itemAnimation(shouldReduceMotion);
 
   return (
     <>
@@ -174,9 +168,7 @@ export function StepFuInput({ onSubmit }: Props) {
       {/* 待ちの形 */}
       <motion.div
         className="mb-5 pb-4 border-b"
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.05 }}
+        {...staggeredEntry(shouldReduceMotion, 0.05)}
       >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">待ちの形</h3>
@@ -213,9 +205,7 @@ export function StepFuInput({ onSubmit }: Props) {
       <motion.div
         ref={jantouRef}
         className="mb-5 pb-4 border-b scroll-mt-4"
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.1 }}
+        {...staggeredEntry(shouldReduceMotion, 0.1)}
       >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">雀頭（頭）</h3>
@@ -261,9 +251,7 @@ export function StepFuInput({ onSubmit }: Props) {
       <motion.div
         ref={mentsuRef}
         className="mb-5 scroll-mt-4"
-        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.15 }}
+        {...staggeredEntry(shouldReduceMotion, 0.15)}
       >
         <div className="flex items-center mb-3">
           <h3 className="text-sm font-bold">刻子・槓子</h3>
@@ -468,7 +456,7 @@ export function StepFuInput({ onSubmit }: Props) {
         </AnimatePresence>
       </motion.div>
 
-      {(phase === 'list' || phase === 'ask-has-mentsu') && phase === 'list' && (
+      {phase === 'list' && (
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
