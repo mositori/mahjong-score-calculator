@@ -179,7 +179,7 @@ export function StepFuInput({ onSubmit }: Props) {
               <p className="text-sm text-center mb-4 text-muted-foreground">
                 アガリ牌は何種類ありましたか？
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-3">
                 <Button
                   variant="outline"
                   className="h-auto py-4 text-left justify-start"
@@ -320,14 +320,12 @@ export function StepFuInput({ onSubmit }: Props) {
                   </div>
                 </Button>
               </div>
-              {entries.length > 0 && (
-                <button
-                  className="w-full mt-3 text-xs text-muted-foreground underline"
-                  onClick={() => setPhase('list')}
-                >
-                  やめる
-                </button>
-              )}
+              <button
+                className="w-full mt-3 text-xs text-muted-foreground underline"
+                onClick={() => setPhase(entries.length > 0 ? 'list' : 'ask-has-mentsu')}
+              >
+                戻る
+              </button>
             </motion.div>
           )}
 

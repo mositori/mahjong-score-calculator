@@ -223,14 +223,16 @@ function App() {
         >
           {state.step === 'dealer' && (
             <StepDealer
-              honba={state.honba}
-              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
               onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
             />
           )}
 
           {state.step === 'winType' && (
-            <StepWinType onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })} />
+            <StepWinType
+              honba={state.honba}
+              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
+              onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })}
+            />
           )}
 
           {state.step === 'handType' && (
@@ -263,6 +265,7 @@ function App() {
                 fu={fu}
                 honba={state.honba}
                 breakdown={breakdown}
+                onBack={() => dispatch({ type: 'BACK' })}
                 onReset={() => dispatch({ type: 'RESET' })}
                 onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
               />

@@ -15,6 +15,7 @@ type Props = {
   fu: number;
   honba: number;
   breakdown: string[];
+  onBack: () => void;
   onReset: () => void;
   onResetKeepDealer: () => void;
 };
@@ -92,7 +93,7 @@ function ScoreValue({ value, label, index }: { value: number; label: string; ind
   );
 }
 
-export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onReset, onResetKeepDealer }: Props) {
+export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBack, onReset, onResetKeepDealer }: Props) {
   const result = calculateScore(isDealer, isTsumo, han, fu, honba);
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
@@ -195,9 +196,18 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onRes
       <motion.div
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] as const }}
+      >
+        <Button variant="ghost" size="sm" className="w-full mt-4 text-muted-foreground" onClick={onBack}>
+          ← 戻る
+        </Button>
+      </motion.div>
+      <motion.div
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] as const }}
       >
-        <Button className="w-full mt-5" size="lg" onClick={onResetKeepDealer}>
+        <Button className="w-full mt-2" size="lg" onClick={onResetKeepDealer}>
           もう一局
         </Button>
       </motion.div>

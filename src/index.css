@@ -70,6 +70,8 @@ body {
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   min-height: 100svh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 @keyframes yakumanPulse {

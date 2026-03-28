@@ -27,7 +27,7 @@ export const yakuList: YakuDef[] = [
   { id: 'iipeiko', name: '一盃口', description: '同じ順子が2組ある', han: 1, kuisagari: 0, type: 'toggle', condition: 'menzen', example: '3p3p4p4p5p5p' },
   { id: 'haitei', name: '海底/河底', description: '最後の牌で上がった', han: 1, kuisagari: 1, type: 'toggle' },
   { id: 'rinshan', name: '嶺上開花', description: 'カンした後に上がった', han: 1, kuisagari: 1, type: 'toggle' },
-  { id: 'chankan', name: '搶槓', description: '他家のカンを奪って上がった', han: 1, kuisagari: 1, type: 'toggle' },
+  { id: 'chankan', name: '搶槓', description: '他家がカンした牌が、自分の上がり牌だった', han: 1, kuisagari: 1, type: 'toggle' },
 
   // 2翻役
   { id: 'double_riichi', name: 'ダブルリーチ', description: '第一巡でリーチ宣言', han: 2, kuisagari: 0, type: 'toggle', condition: 'menzen' },
