@@ -1,43 +1,79 @@
-:root {
-  --primary: #1a7a4c;
-  --primary-light: #e8f5ee;
-  --text: #333;
-  --text-light: #666;
-  --bg: #fafafa;
-  --card-bg: #fff;
-  --border: #e0e0e0;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+@import "tailwindcss";
 
-  color-scheme: light dark;
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.5 0.15 160);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.965 0.001 286.375);
+  --secondary-foreground: oklch(0.205 0.015 286.375);
+  --muted: oklch(0.965 0.001 286.375);
+  --muted-foreground: oklch(0.556 0.01 286.375);
+  --accent: oklch(0.965 0.001 286.375);
+  --accent-foreground: oklch(0.205 0.015 286.375);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0.004 286.375);
+  --input: oklch(0.922 0.004 286.375);
+  --ring: oklch(0.5 0.15 160);
+  --radius: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #4caf80;
-    --primary-light: #1a2e23;
-    --text: #e0e0e0;
-    --text-light: #aaa;
-    --bg: #121212;
-    --card-bg: #1e1e1e;
-    --border: #333;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  }
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0.006 286.375);
+  --card-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.6 0.15 160);
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.269 0.006 286.375);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0.006 286.375);
+  --muted-foreground: oklch(0.7 0.01 286.375);
+  --accent: oklch(0.269 0.006 286.375);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.35 0.006 286.375);
+  --input: oklch(0.35 0.006 286.375);
+  --ring: oklch(0.6 0.15 160);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-color: var(--border);
 }
 
 body {
   font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  font-size: 16px;
-  color: var(--text);
-  background: var(--bg);
+  background: var(--background);
+  color: var(--foreground);
   -webkit-font-smoothing: antialiased;
-}
-
-#root {
-  min-height: 100svh;
 }

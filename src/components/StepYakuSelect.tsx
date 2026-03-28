@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { yakuList, doraList } from '../logic/yakuList';
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 type Props = {
   isMenzen: boolean;
@@ -16,16 +18,15 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
   };
 
   const setCount = (id: string, delta: number, max: number) => {
-    setSelection((prev) => {
-      const next = Math.max(0, Math.min(max, (prev[id] ?? 0) + delta));
-      return { ...prev, [id]: next };
-    });
+    setSelection((prev) => ({
+      ...prev,
+      [id]: Math.max(0, Math.min(max, (prev[id] ?? 0) + delta)),
+    }));
   };
 
   const visibleYaku = yakuList.filter((yaku) => {
     if (yaku.condition === 'menzen' && !isMenzen) return false;
     if (yaku.condition === 'riichi' && !isRiichi) return false;
-    // 鳴きで食い下がり0の役は表示しない
     if (!isMenzen && yaku.kuisagari === 0) return false;
     return true;
   });
@@ -36,28 +37,31 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
   });
 
   return (
-    <div className="step">
-      <h2 className="step-question">あてはまる役をタップ</h2>
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+      <h2 className="text-xl font-bold text-center mb-5">あてはまる役をタップ</h2>
 
-      <div className="yaku-section">
-        <h3 className="yaku-section-title">役</h3>
-        <div className="yaku-list">
+      {/* 役 */}
+      <div className="mb-5">
+        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">役</h3>
+        <div className="flex flex-col gap-2">
           {visibleYaku.map((yaku) => {
             const value = selection[yaku.id] ?? 0;
             const han = isMenzen ? yaku.han : yaku.kuisagari;
 
             if (yaku.type === 'counter') {
               return (
-                <div key={yaku.id} className="yaku-counter-row">
-                  <div className="yaku-info">
-                    <span className="yaku-name">{yaku.name}</span>
-                    <span className="yaku-han">+{han}翻</span>
+                <div key={yaku.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm">{yaku.name}</span>
+                      <span className="text-xs font-bold text-primary">+{han}翻</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{yaku.description}</span>
                   </div>
-                  <span className="yaku-desc">{yaku.description}</span>
-                  <div className="counter-controls">
-                    <button className="counter-btn" onClick={() => setCount(yaku.id, -1, yaku.maxCount ?? 4)}>-</button>
-                    <span className="counter-value">{value}</span>
-                    <button className="counter-btn" onClick={() => setCount(yaku.id, 1, yaku.maxCount ?? 4)}>+</button>
+                  <div className="flex items-center gap-2 ml-3">
+                    <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, -1, yaku.maxCount ?? 4)}>-</Button>
+                    <span className="w-5 text-center font-bold text-sm">{value}</span>
+                    <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, 1, yaku.maxCount ?? 4)}>+</Button>
                   </div>
                 </div>
               );
@@ -66,37 +70,41 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
             return (
               <button
                 key={yaku.id}
-                className={`yaku-toggle ${value ? 'active' : ''}`}
+                className={cn(
+                  "w-full text-left p-3 rounded-lg border-2 transition-colors",
+                  value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/30"
+                )}
                 onClick={() => toggle(yaku.id)}
               >
-                <div className="yaku-info">
-                  <span className="yaku-name">{yaku.name}</span>
-                  <span className="yaku-han">+{han}翻</span>
+                <div className="flex items-center justify-between">
+                  <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
+                  <span className="text-xs font-bold text-primary">+{han}翻</span>
                 </div>
-                <span className="yaku-desc">{yaku.description}</span>
+                <span className="text-xs text-muted-foreground">{yaku.description}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="yaku-section">
-        <h3 className="yaku-section-title">ドラ</h3>
-        <div className="dora-list">
+      {/* ドラ */}
+      <div className="mb-5">
+        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">ドラ</h3>
+        <div className="flex flex-col gap-2">
           {visibleDora.map((d) => (
-            <div key={d.id} className="yaku-counter-row">
-              <span className="yaku-name">{d.name}</span>
-              <div className="counter-controls">
-                <button className="counter-btn" onClick={() => setCount(d.id, -1, d.maxCount)}>-</button>
-                <span className="counter-value">{selection[d.id] ?? 0}</span>
-                <button className="counter-btn" onClick={() => setCount(d.id, 1, d.maxCount)}>+</button>
+            <div key={d.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+              <span className="font-bold text-sm">{d.name}</span>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="counter" onClick={() => setCount(d.id, -1, d.maxCount)}>-</Button>
+                <span className="w-5 text-center font-bold text-sm">{selection[d.id] ?? 0}</span>
+                <Button variant="outline" size="counter" onClick={() => setCount(d.id, 1, d.maxCount)}>+</Button>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <button className="submit-btn" onClick={() => onSubmit(selection)}>計算する</button>
+      <Button className="w-full" size="lg" onClick={() => onSubmit(selection)}>計算する</Button>
     </div>
   );
 }
