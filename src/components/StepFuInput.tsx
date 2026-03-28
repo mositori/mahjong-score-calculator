@@ -315,14 +315,12 @@ export function StepFuInput({ onSubmit }: Props) {
                   </div>
                 </Button>
               </div>
-              {entries.length > 0 && (
-                <button
-                  className="w-full mt-3 text-xs text-muted-foreground underline"
-                  onClick={() => setPhase('list')}
-                >
-                  やめる
-                </button>
-              )}
+              <button
+                className="w-full mt-3 text-xs text-muted-foreground underline"
+                onClick={() => setPhase(entries.length > 0 ? 'list' : 'ask-has-mentsu')}
+              >
+                戻る
+              </button>
             </motion.div>
           )}
 
