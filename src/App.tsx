@@ -99,41 +99,47 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-function computeResult(state: State): { han: number; fu: number; breakdown: string[] } {
+function computeResult(
+  handType: HandType | null,
+  isMenzen: boolean,
+  isTsumo: boolean | null,
+  yakuSelection: Record<string, number> | null,
+  fuInputData: FuInputData | null,
+): { han: number; fu: number; breakdown: string[] } {
   const breakdown: string[] = [];
 
-  if (state.handType === 'yakuman') {
+  if (handType === 'yakuman') {
     return { han: 13, fu: 30, breakdown: ['役満'] };
   }
 
   let han = 0;
 
   // 手の形による翻
-  if (state.handType === 'chiitoitsu') {
+  if (handType === 'chiitoitsu') {
     han += 2;
     breakdown.push('七対子(2翻)');
   }
-  if (state.handType === 'pinfu') {
+  if (handType === 'pinfu') {
     han += 1;
     breakdown.push('ピンフ(1翻)');
   }
 
   // 門前清自摸和
-  if (state.isMenzen && state.isTsumo) {
+  if (isMenzen && isTsumo) {
     han += 1;
     breakdown.push('門前ツモ(1翻)');
   }
 
   // 役の選択から翻数
-  if (state.yakuSelection) {
-    const yakuHan = calculateYakuHan(state.yakuSelection, state.isMenzen);
+  if (yakuSelection) {
+    const yakuHan = calculateYakuHan(yakuSelection, isMenzen);
     han += yakuHan;
 
     // 内訳
     for (const yaku of yakuList) {
-      const value = state.yakuSelection[yaku.id] ?? 0;
+      const value = yakuSelection[yaku.id] ?? 0;
       if (value <= 0) continue;
-      const h = state.isMenzen ? yaku.han : yaku.kuisagari;
+      const h = isMenzen ? yaku.han : yaku.kuisagari;
       if (h <= 0) continue;
       breakdown.push(
         yaku.type === 'counter'
@@ -142,7 +148,7 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
       );
     }
     for (const d of doraList) {
-      const value = state.yakuSelection[d.id] ?? 0;
+      const value = yakuSelection[d.id] ?? 0;
       if (value > 0) {
         breakdown.push(`${d.name}(${value}翻)`);
       }
@@ -151,13 +157,13 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
 
   // 符の計算
   const fu = calculateFu({
-    isTsumo: state.isTsumo ?? false,
-    isMenzen: state.isMenzen,
-    isChiitoitsu: state.handType === 'chiitoitsu',
-    isPinfu: state.handType === 'pinfu',
-    waitType: state.fuInputData?.waitType ?? 'open',
-    isYakuhaiHead: state.fuInputData?.isYakuhaiHead ?? false,
-    mentsuFu: state.fuInputData?.mentsuFu ?? 0,
+    isTsumo: isTsumo ?? false,
+    isMenzen,
+    isChiitoitsu: handType === 'chiitoitsu',
+    isPinfu: handType === 'pinfu',
+    waitType: fuInputData?.waitType ?? 'open',
+    isYakuhaiHead: fuInputData?.isYakuhaiHead ?? false,
+    mentsuFu: fuInputData?.mentsuFu ?? 0,
   });
 
   return { han, fu, breakdown };
@@ -177,7 +183,11 @@ function App() {
   const isForward = state.transitionDirection === 'forward';
   const resultData = useMemo(() => {
     if (state.step !== 'result' || state.isDealer == null || state.isTsumo == null) return null;
-    return { ...computeResult(state), isDealer: state.isDealer, isTsumo: state.isTsumo };
+    return {
+      ...computeResult(state.handType, state.isMenzen, state.isTsumo, state.yakuSelection, state.fuInputData),
+      isDealer: state.isDealer,
+      isTsumo: state.isTsumo,
+    };
   }, [state.step, state.isDealer, state.isTsumo, state.handType, state.isMenzen, state.yakuSelection, state.fuInputData]);
 
   // useCallback for dispatch wrappers to stabilize references for memoized children
