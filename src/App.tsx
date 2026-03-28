@@ -1,7 +1,7 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { State, Action, HandType, FuInputData } from './types';
-import { EASE_STANDARD } from './lib/motion';
+
 import { calculateFu } from './logic/fuCalculator';
 import { calculateYakuHan, yakuList, doraList } from './logic/yakuList';
 import { StepDealer } from './components/StepDealer';
@@ -166,6 +166,12 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const shouldReduceMotion = useReducedMotion();
+  const stepContainerRef = useRef<HTMLDivElement>(null);
+
+  // ステップ切り替え時にトップへスクロール
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state.stepKey]);
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
   const isForward = state.transitionDirection === 'forward';
@@ -182,12 +188,12 @@ function App() {
       };
 
   return (
-    <div className="max-w-md mx-auto px-5 py-8">
+    <div className="max-w-md mx-auto px-5 py-8 min-h-svh flex flex-col">
       <motion.h1
         className="text-2xl font-bold text-center text-primary mb-4"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         麻雀点数計算
       </motion.h1>
@@ -207,7 +213,7 @@ function App() {
             initial={shouldReduceMotion ? undefined : { opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
-            transition={{ duration: 0.15 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 35 }}
           >
             <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
               ← 戻る
@@ -216,14 +222,16 @@ function App() {
         )}
       </AnimatePresence>
 
+      <div ref={stepContainerRef} className="flex-1 flex flex-col">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={state.stepKey}
+          className="flex-1 flex flex-col"
           variants={slideVariants}
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: EASE_STANDARD }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
         >
           {state.step === 'dealer' && (
             <StepDealer
@@ -274,6 +282,7 @@ function App() {
           )}
         </motion.div>
       </AnimatePresence>
+      </div>
     </div>
   );
 }

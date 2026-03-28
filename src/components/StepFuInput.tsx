@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
-import { EASE_STANDARD, itemAnimation, staggeredEntry } from '@/lib/motion';
+import { itemAnimation, staggeredEntry } from '@/lib/motion';
 
 type Props = {
   onSubmit: (data: FuInputData) => void;
@@ -59,7 +59,7 @@ function HelpToggle({ text }: { text: string }) {
             initial={shouldReduceMotion ? undefined : { opacity: 0, height: 0, marginTop: 0 }}
             animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
-            transition={{ duration: 0.2, ease: EASE_STANDARD }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
           >
             {text}
           </motion.p>
@@ -97,6 +97,14 @@ export function StepFuInput({ onSubmit }: Props) {
   const [waitType, setWaitType] = useState<'open' | 'closed'>('open');
   const [jantouChoice, setJantouChoice] = useState<JantouChoice>('other');
   const shouldReduceMotion = useReducedMotion();
+  const jantouRef = useRef<HTMLDivElement>(null);
+  const mentsuRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement | null>) => {
+    setTimeout(() => {
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
 
   // Mentsu wizard state
   const [entries, setEntries] = useState<MentsuEntry[]>([]);
@@ -152,7 +160,7 @@ export function StepFuInput({ onSubmit }: Props) {
         className="text-xl font-bold text-center mb-5"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         符の計算
       </motion.h2>
@@ -172,7 +180,7 @@ export function StepFuInput({ onSubmit }: Props) {
             variant={waitType === 'open' ? 'selected' : 'unselected'}
             size="sm"
             className="h-auto py-2.5 text-xs"
-            onClick={() => setWaitType('open')}
+            onClick={() => { setWaitType('open'); scrollToSection(jantouRef); }}
           >
             <div>
               <div className="font-bold">2種類以上</div>
@@ -183,7 +191,7 @@ export function StepFuInput({ onSubmit }: Props) {
             variant={waitType === 'closed' ? 'selected' : 'unselected'}
             size="sm"
             className="h-auto py-2.5 text-xs"
-            onClick={() => setWaitType('closed')}
+            onClick={() => { setWaitType('closed'); scrollToSection(jantouRef); }}
           >
             <div>
               <div className="font-bold">1種類だけ</div>
@@ -195,7 +203,8 @@ export function StepFuInput({ onSubmit }: Props) {
 
       {/* 雀頭 */}
       <motion.div
-        className="mb-5 pb-4 border-b"
+        ref={jantouRef}
+        className="mb-5 pb-4 border-b scroll-mt-4"
         {...staggeredEntry(shouldReduceMotion, 0.1)}
       >
         <div className="flex items-center mb-1">
@@ -208,7 +217,7 @@ export function StepFuInput({ onSubmit }: Props) {
             variant={jantouChoice === 'sangenpai' ? 'selected' : 'unselected'}
             size="sm"
             className="h-auto py-2.5 text-xs text-left justify-start"
-            onClick={() => setJantouChoice('sangenpai')}
+            onClick={() => { setJantouChoice('sangenpai'); scrollToSection(mentsuRef); }}
           >
             <div>
               <span className="font-bold">白・發・中のどれか</span>
@@ -218,7 +227,7 @@ export function StepFuInput({ onSubmit }: Props) {
             variant={jantouChoice === 'kazehai' ? 'selected' : 'unselected'}
             size="sm"
             className="h-auto py-2.5 text-xs text-left justify-start"
-            onClick={() => setJantouChoice('kazehai')}
+            onClick={() => { setJantouChoice('kazehai'); scrollToSection(mentsuRef); }}
           >
             <div>
               <span className="font-bold">場の風や自分の風と同じ風牌</span>
@@ -229,7 +238,7 @@ export function StepFuInput({ onSubmit }: Props) {
             variant={jantouChoice === 'other' ? 'selected' : 'unselected'}
             size="sm"
             className="h-auto py-2.5 text-xs text-left justify-start"
-            onClick={() => setJantouChoice('other')}
+            onClick={() => { setJantouChoice('other'); scrollToSection(mentsuRef); }}
           >
             <div>
               <span className="font-bold">どれでもない</span>
@@ -240,7 +249,8 @@ export function StepFuInput({ onSubmit }: Props) {
 
       {/* 刻子・槓子 wizard */}
       <motion.div
-        className="mb-5"
+        ref={mentsuRef}
+        className="mb-5 scroll-mt-4"
         {...staggeredEntry(shouldReduceMotion, 0.15)}
       >
         <div className="flex items-center mb-3">
@@ -411,7 +421,7 @@ export function StepFuInput({ onSubmit }: Props) {
                       initial={shouldReduceMotion ? undefined : { opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.18, ease: EASE_STANDARD }}
+                      transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
                     >
                       <MentsuCard
                         entry={entry}
@@ -450,7 +460,7 @@ export function StepFuInput({ onSubmit }: Props) {
         <motion.div
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
         >
           <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
             次へ

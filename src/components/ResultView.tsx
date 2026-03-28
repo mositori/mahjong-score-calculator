@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { EASE_STANDARD } from '@/lib/motion';
+
 import confetti from 'canvas-confetti';
 import { calculateScore, getTierName, getBasePoints, getTotalPoints } from '../logic/scoreCalculator';
 import { CelebrationOverlay } from './CelebrationOverlay';
@@ -86,7 +86,7 @@ function ScoreValue({ value, label, index }: { value: number; label: string; ind
       className="flex justify-between items-center py-3 border-b last:border-b-0"
       initial={shouldReduceMotion ? undefined : { opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: 0.3 + index * 0.1, ease: EASE_STANDARD }}
+      transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.3 + index * 0.1 }}
     >
       <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-2xl font-bold tabular-nums">{displayed.toLocaleString()}点</span>
@@ -125,7 +125,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
       <motion.div
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25 }}
       >
         <Card className={isYakuman ? 'ring-2 ring-primary shadow-lg' : ''}>
           <CardHeader className="text-center pb-2">
@@ -171,7 +171,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
               className="text-center text-xs text-muted-foreground mt-4"
               initial={shouldReduceMotion ? undefined : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.5 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.5 }}
             >
               {han}翻 {fu}符{honba > 0 ? ` ${honba}本場` : ''} — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
             </motion.div>
@@ -183,7 +183,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
                     key={i}
                     initial={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.8, y: 5 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: 0.6 + i * 0.05, ease: EASE_STANDARD }}
+                    transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30, delay: 0.6 + i * 0.05 }}
                   >
                     <Badge variant="accent">{item}</Badge>
                   </motion.div>
@@ -203,7 +203,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onBac
           key={btn.label}
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.7 + i * 0.1, ease: EASE_STANDARD }}
+          transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 25, delay: 0.7 + i * 0.1 }}
         >
           <Button variant={btn.variant} size={btn.size} className={btn.className} onClick={btn.onClick}>
             {btn.label}

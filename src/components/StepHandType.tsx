@@ -16,12 +16,12 @@ const options: { label: string; description: string; value: HandType }[] = [
 export function StepHandType({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <>
+    <div className="flex-1 flex flex-col justify-center pb-[10svh]">
       <motion.h2
         className="text-xl font-bold text-center mb-5"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30 }}
       >
         手の形は？
       </motion.h2>
@@ -31,7 +31,7 @@ export function StepHandType({ onSelect }: Props) {
             key={opt.value}
             initial={shouldReduceMotion ? undefined : { opacity: 0, x: -15 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25, delay: 0.05 + i * 0.05, ease: [0.25, 0.1, 0.25, 1] as const }}
+            transition={shouldReduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 30, delay: 0.05 + i * 0.05 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
           >
             <Button
@@ -48,6 +48,6 @@ export function StepHandType({ onSelect }: Props) {
           </motion.div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
