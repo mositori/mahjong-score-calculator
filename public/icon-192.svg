@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="32" fill="#1a7a4c"/>
+  <rect x="36" y="28" width="120" height="136" rx="10" fill="#fff"/>
+  <rect x="48" y="40" width="96" height="112" rx="6" fill="#f0f0f0"/>
+  <!-- 中 character stylized -->
+  <rect x="72" y="56" width="48" height="4" rx="2" fill="#e74c3c"/>
+  <rect x="72" y="56" width="4" height="40" rx="2" fill="#e74c3c"/>
+  <rect x="116" y="56" width="4" height="40" rx="2" fill="#e74c3c"/>
+  <rect x="72" y="72" width="48" height="4" rx="2" fill="#e74c3c"/>
+  <rect x="92" y="56" width="4" height="68" rx="2" fill="#e74c3c"/>
+  <rect x="72" y="92" width="48" height="4" rx="2" fill="#e74c3c"/>
+  <rect x="72" y="92" width="4" height="28" rx="2" fill="#e74c3c"/>
+  <rect x="116" y="92" width="4" height="28" rx="2" fill="#e74c3c"/>
+  <rect x="72" y="116" width="48" height="4" rx="2" fill="#e74c3c"/>
+  <!-- Score dots -->
+  <circle cx="68" cy="140" r="4" fill="#1a7a4c"/>
+  <circle cx="96" cy="140" r="4" fill="#1a7a4c"/>
+  <circle cx="124" cy="140" r="4" fill="#1a7a4c"/>
+</svg>
