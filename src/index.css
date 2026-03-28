@@ -86,3 +86,26 @@ body {
 .step-animate {
   animation: fadeSlideIn 0.2s ease-out;
 }
+
+@keyframes yakumanPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.yakuman-pulse {
+  animation: yakumanPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes flashOverlay {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+.yakuman-flash {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent 70%);
+  pointer-events: none;
+  z-index: 50;
+  animation: flashOverlay 1s ease-out forwards;
+}
