@@ -9,7 +9,7 @@ import { StepMenzen } from './components/StepMenzen';
 import { StepFuInput } from './components/StepFuInput';
 import { StepYakuSelect } from './components/StepYakuSelect';
 import { ResultView } from './components/ResultView';
-import './App.css';
+import { Button } from './components/ui/button';
 
 const initialState: State = {
   step: 'dealer',
@@ -140,13 +140,13 @@ function App() {
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
 
   return (
-    <div className="app">
-      <h1 className="app-title">麻雀点数計算</h1>
+    <div className="max-w-md mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold text-center text-primary mb-2">麻雀点数計算</h1>
 
       {showBack && (
-        <button className="back-button" onClick={() => dispatch({ type: 'BACK' })}>
+        <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
           ← 戻る
-        </button>
+        </Button>
       )}
 
       {state.step === 'dealer' && (

@@ -1,4 +1,7 @@
 import { calculateScore } from '../logic/scoreCalculator';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
 type Props = {
   isDealer: boolean;
@@ -13,55 +16,62 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: P
   const result = calculateScore(isDealer, isTsumo, han, fu);
 
   return (
-    <div className="step">
-      <div className="result-card">
-        {result.tierName && <div className="result-tier">{result.tierName}</div>}
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+      <Card>
+        <CardHeader className="text-center pb-2">
+          {result.tierName && (
+            <CardTitle className="text-3xl text-primary">{result.tierName}</CardTitle>
+          )}
+        </CardHeader>
+        <CardContent>
+          {result.ronPayment != null && (
+            <div className="flex justify-between items-center py-3 border-b">
+              <span className="text-sm text-muted-foreground">放銃者の支払い</span>
+              <span className="text-2xl font-bold">{result.ronPayment.toLocaleString()}点</span>
+            </div>
+          )}
 
-        {result.ronPayment != null && (
-          <div className="result-score">
-            <span className="result-label">放銃者の支払い</span>
-            <span className="result-value">{result.ronPayment.toLocaleString()}点</span>
+          {isTsumo && isDealer && result.tsumoPaymentNonDealer != null && (
+            <div className="flex justify-between items-center py-3 border-b">
+              <span className="text-sm text-muted-foreground">子の支払い（各自）</span>
+              <span className="text-2xl font-bold">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
+            </div>
+          )}
+
+          {isTsumo && !isDealer && (
+            <>
+              {result.tsumoPaymentDealer != null && (
+                <div className="flex justify-between items-center py-3 border-b">
+                  <span className="text-sm text-muted-foreground">親の支払い</span>
+                  <span className="text-2xl font-bold">{result.tsumoPaymentDealer.toLocaleString()}点</span>
+                </div>
+              )}
+              {result.tsumoPaymentNonDealer != null && (
+                <div className="flex justify-between items-center py-3">
+                  <span className="text-sm text-muted-foreground">子の支払い（各自）</span>
+                  <span className="text-2xl font-bold">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className="text-center text-xs text-muted-foreground mt-4">
+            {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
           </div>
-        )}
 
-        {isTsumo && isDealer && result.tsumoPaymentNonDealer != null && (
-          <div className="result-score">
-            <span className="result-label">子の支払い（各自）</span>
-            <span className="result-value">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
-          </div>
-        )}
+          {breakdown.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 justify-center mt-3">
+              {breakdown.map((item, i) => (
+                <Badge key={i} variant="accent">{item}</Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        {isTsumo && !isDealer && (
-          <>
-            {result.tsumoPaymentDealer != null && (
-              <div className="result-score">
-                <span className="result-label">親の支払い</span>
-                <span className="result-value">{result.tsumoPaymentDealer.toLocaleString()}点</span>
-              </div>
-            )}
-            {result.tsumoPaymentNonDealer != null && (
-              <div className="result-score">
-                <span className="result-label">子の支払い（各自）</span>
-                <span className="result-value">{result.tsumoPaymentNonDealer.toLocaleString()}点</span>
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="result-detail">
-          {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
-        </div>
-
-        {breakdown.length > 0 && (
-          <div className="result-breakdown">
-            {breakdown.map((item, i) => (
-              <span key={i} className="breakdown-tag">{item}</span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <button className="reset-button" onClick={onReset}>やり直す</button>
+      <Button variant="secondary" className="w-full mt-5" size="lg" onClick={onReset}>
+        やり直す
+      </Button>
     </div>
   );
 }
