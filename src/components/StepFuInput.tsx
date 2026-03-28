@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
 
@@ -6,21 +6,25 @@ type Props = {
   onSubmit: (data: FuInputData) => void;
 };
 
-type MentsuType = { id: string; label: string; fu: number };
+type MentsuType = { id: string; fu: number };
 
-const basicMentsu: MentsuType[] = [
-  { id: 'minko_chun', label: '明刻（2〜8）', fu: 2 },
-  { id: 'minko_yao', label: '明刻（1,9,字）', fu: 4 },
-  { id: 'anko_chun', label: '暗刻（2〜8）', fu: 4 },
-  { id: 'anko_yao', label: '暗刻（1,9,字）', fu: 8 },
+type MentsuRow = {
+  rowLabel: string;
+  chun: MentsuType;
+  yao: MentsuType;
+};
+
+const koutsuRows: MentsuRow[] = [
+  { rowLabel: 'ポン（明）', chun: { id: 'minko_chun', fu: 2 }, yao: { id: 'minko_yao', fu: 4 } },
+  { rowLabel: '自力（暗）', chun: { id: 'anko_chun', fu: 4 }, yao: { id: 'anko_yao', fu: 8 } },
 ];
 
-const kanMentsu: MentsuType[] = [
-  { id: 'minkan_chun', label: '明槓（2〜8）', fu: 8 },
-  { id: 'minkan_yao', label: '明槓（1,9,字）', fu: 16 },
-  { id: 'ankan_chun', label: '暗槓（2〜8）', fu: 16 },
-  { id: 'ankan_yao', label: '暗槓（1,9,字）', fu: 32 },
+const kantsuRows: MentsuRow[] = [
+  { rowLabel: '大明槓・加槓', chun: { id: 'minkan_chun', fu: 8 }, yao: { id: 'minkan_yao', fu: 16 } },
+  { rowLabel: '暗槓', chun: { id: 'ankan_chun', fu: 16 }, yao: { id: 'ankan_yao', fu: 32 } },
 ];
+
+const allMentsu = [...koutsuRows, ...kantsuRows].flatMap((r) => [r.chun, r.yao]);
 
 function HelpToggle({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
@@ -42,19 +46,57 @@ function HelpToggle({ text }: { text: string }) {
   );
 }
 
-function Counter({ label, fuLabel, value, onChange }: {
-  label: string; fuLabel: string; value: number; onChange: (v: number) => void;
+function CellCounter({ fu, value, onChange, disableIncrement }: {
+  fu: number; value: number; onChange: (v: number) => void; disableIncrement: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between py-2 px-3 bg-card rounded-lg border">
-      <div className="text-sm">
-        {label} <span className="text-muted-foreground text-xs">+{fuLabel}符</span>
+    <div className="flex flex-col items-center gap-1 py-2 px-1">
+      <span className="text-xs text-muted-foreground">+{fu}符</span>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="counter" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0}>-</Button>
+        <span className="w-5 text-center font-bold text-sm">{value}</span>
+        <Button variant="outline" size="counter" onClick={() => onChange(Math.min(4, value + 1))} disabled={disableIncrement}>+</Button>
       </div>
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="counter" onClick={() => onChange(Math.max(0, value - 1))}>-</Button>
-        <span className="w-5 text-center font-bold">{value}</span>
-        <Button variant="outline" size="counter" onClick={() => onChange(Math.min(4, value + 1))}>+</Button>
-      </div>
+    </div>
+  );
+}
+
+function MentsuGrid({ rows, counts, onChange, disableIncrement }: {
+  rows: MentsuRow[];
+  counts: Record<string, number>;
+  onChange: (id: string, v: number) => void;
+  disableIncrement: boolean;
+}) {
+  return (
+    <div className="grid grid-cols-[auto_1fr_1fr] border rounded-lg overflow-hidden bg-card">
+      {/* Column headers */}
+      <div className="bg-muted/50 border-b" />
+      <div className="text-xs font-semibold text-center py-2 px-1 bg-muted/50 border-b border-l">中張牌（2〜8）</div>
+      <div className="text-xs font-semibold text-center py-2 px-1 bg-muted/50 border-b border-l">么九牌（1,9,字）</div>
+      {/* Rows */}
+      {rows.map((row, i) => (
+        <Fragment key={row.rowLabel}>
+          <div className={`flex items-center px-3 text-xs font-semibold whitespace-nowrap ${i > 0 ? 'border-t' : ''}`}>
+            {row.rowLabel}
+          </div>
+          <div className={`flex justify-center border-l ${i > 0 ? 'border-t' : ''}`}>
+            <CellCounter
+              fu={row.chun.fu}
+              value={counts[row.chun.id] ?? 0}
+              onChange={(v) => onChange(row.chun.id, v)}
+              disableIncrement={disableIncrement && (counts[row.chun.id] ?? 0) === 0}
+            />
+          </div>
+          <div className={`flex justify-center border-l ${i > 0 ? 'border-t' : ''}`}>
+            <CellCounter
+              fu={row.yao.fu}
+              value={counts[row.yao.id] ?? 0}
+              onChange={(v) => onChange(row.yao.id, v)}
+              disableIncrement={disableIncrement && (counts[row.yao.id] ?? 0) === 0}
+            />
+          </div>
+        </Fragment>
+      ))}
     </div>
   );
 }
@@ -65,9 +107,22 @@ export function StepFuInput({ onSubmit }: Props) {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [showKan, setShowKan] = useState(false);
 
-  const mentsuFu = [...basicMentsu, ...kanMentsu].reduce(
+  const mentsuFu = allMentsu.reduce(
     (sum, m) => sum + m.fu * (counts[m.id] ?? 0), 0,
   );
+
+  const totalMentsuCount = allMentsu.reduce(
+    (sum, m) => sum + (counts[m.id] ?? 0), 0,
+  );
+
+  const maxReached = totalMentsuCount >= 4;
+
+  const handleCountChange = (id: string, v: number) => {
+    const current = counts[id] ?? 0;
+    const diff = v - current;
+    if (diff > 0 && totalMentsuCount + diff > 4) return;
+    setCounts({ ...counts, [id]: v });
+  };
 
   return (
     <>
@@ -141,44 +196,41 @@ export function StepFuInput({ onSubmit }: Props) {
           刻子なし（順子のみ）→ 次へ
         </Button>
 
-        <div className="flex flex-col gap-2">
-          {basicMentsu.map((m) => (
-            <Counter
-              key={m.id}
-              label={m.label}
-              fuLabel={String(m.fu)}
-              value={counts[m.id] ?? 0}
-              onChange={(v) => setCounts({ ...counts, [m.id]: v })}
-            />
-          ))}
-        </div>
+        <h4 className="text-xs font-semibold text-muted-foreground mb-1">刻子</h4>
+        <MentsuGrid
+          rows={koutsuRows}
+          counts={counts}
+          onChange={handleCountChange}
+          disableIncrement={maxReached}
+        />
 
         {!showKan ? (
           <button
-            className="w-full mt-2 py-2 text-xs text-muted-foreground border border-dashed rounded-lg"
+            className="w-full mt-3 py-2 text-xs text-muted-foreground border border-dashed rounded-lg"
             onClick={() => setShowKan(true)}
           >
             槓子がある
           </button>
         ) : (
-          <div className="flex flex-col gap-2 mt-2">
-            {kanMentsu.map((m) => (
-              <Counter
-                key={m.id}
-                label={m.label}
-                fuLabel={String(m.fu)}
-                value={counts[m.id] ?? 0}
-                onChange={(v) => setCounts({ ...counts, [m.id]: v })}
-              />
-            ))}
+          <div className="mt-3">
+            <h4 className="text-xs font-semibold text-muted-foreground mb-1">槓子</h4>
+            <MentsuGrid
+              rows={kantsuRows}
+              counts={counts}
+              onChange={handleCountChange}
+              disableIncrement={maxReached}
+            />
           </div>
         )}
 
-        {mentsuFu > 0 && (
-          <div className="mt-2 text-sm font-bold text-primary text-right">
-            刻子・槓子の符: +{mentsuFu}
-          </div>
-        )}
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">面子: {totalMentsuCount}/4</span>
+          {mentsuFu > 0 && (
+            <span className="text-sm font-bold text-primary">
+              刻子・槓子の符: +{mentsuFu}
+            </span>
+          )}
+        </div>
       </div>
 
       <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
