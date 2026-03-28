@@ -59,7 +59,7 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
   });
 
   return (
-    <div className="step-animate">
+    <>
       <h2 className="text-xl font-bold text-center mb-5">あてはまる役をタップ</h2>
 
       {/* 役 */}
@@ -129,6 +129,6 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       </div>
 
       <Button className="w-full" size="lg" onClick={() => onSubmit(selection)}>計算する</Button>
-    </div>
+    </>
   );
 }

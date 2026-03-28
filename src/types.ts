@@ -19,6 +19,8 @@ export type FuInputData = {
 export type State = {
   step: Step;
   stepHistory: Step[];
+  stepKey: number;
+  transitionDirection: 'forward' | 'back';
   isDealer: boolean | null;
   isTsumo: boolean | null;
   handType: HandType | null;
@@ -35,4 +37,5 @@ export type Action =
   | { type: 'SET_FU_INPUT'; data: FuInputData }
   | { type: 'SET_YAKU'; selection: Record<string, number> }
   | { type: 'BACK' }
-  | { type: 'RESET' };
+  | { type: 'RESET' }
+  | { type: 'RESET_KEEP_DEALER' };

@@ -22,6 +22,26 @@ const kanMentsu: MentsuType[] = [
   { id: 'ankan_yao', label: '暗槓（1,9,字）', fu: 32 },
 ];
 
+function HelpToggle({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted text-muted-foreground text-xs shrink-0"
+        onClick={() => setOpen(!open)}
+        aria-label="ヘルプ"
+      >
+        ?
+      </button>
+      {open && (
+        <p className="text-xs text-muted-foreground mt-1.5 p-2.5 bg-muted/50 rounded-md leading-relaxed">
+          {text}
+        </p>
+      )}
+    </>
+  );
+}
+
 function Counter({ label, fuLabel, value, onChange }: {
   label: string; fuLabel: string; value: number; onChange: (v: number) => void;
 }) {
@@ -50,12 +70,15 @@ export function StepFuInput({ onSubmit }: Props) {
   );
 
   return (
-    <div className="step-animate">
+    <>
       <h2 className="text-xl font-bold text-center mb-5">符の計算</h2>
 
       {/* 待ちの形 */}
       <div className="mb-5 pb-4 border-b">
-        <h3 className="text-sm font-bold mb-1">待ちの形</h3>
+        <div className="flex items-center mb-1">
+          <h3 className="text-sm font-bold">待ちの形</h3>
+          <HelpToggle text="最後のアガリ牌の受け入れが2種類以上なら「両面・シャンポン」です。例: 2-3で1と4待ちは両面。1-3で2だけ待ちは嵌張、1-2で3だけ待ちは辺張、1枚だけ待ちは単騎です。" />
+        </div>
         <p className="text-xs text-muted-foreground mb-2">待ち牌が2種以上なら両面系</p>
         <div className="grid grid-cols-2 gap-2">
           <Button
@@ -79,7 +102,10 @@ export function StepFuInput({ onSubmit }: Props) {
 
       {/* 雀頭 */}
       <div className="mb-5 pb-4 border-b">
-        <h3 className="text-sm font-bold mb-1">雀頭（頭）</h3>
+        <div className="flex items-center mb-1">
+          <h3 className="text-sm font-bold">雀頭（頭）</h3>
+          <HelpToggle text="頭が三元牌（白・發・中）、場風牌（東場なら東）、または自風牌（自分の風）の場合は「役牌」を選んでください。連風牌（例: 東場の東家の東）も「役牌」です。" />
+        </div>
         <p className="text-xs text-muted-foreground mb-2">白・發・中・場風牌・自風牌</p>
         <div className="grid grid-cols-2 gap-2">
           <Button
@@ -103,7 +129,10 @@ export function StepFuInput({ onSubmit }: Props) {
 
       {/* 刻子・槓子 */}
       <div className="mb-5">
-        <h3 className="text-sm font-bold mb-2">刻子・槓子</h3>
+        <div className="flex items-center mb-2">
+          <h3 className="text-sm font-bold">刻子・槓子</h3>
+          <HelpToggle text="同じ牌3枚の組み合わせが刻子です。自分で揃えたら「暗刻」、ポンしたら「明刻」。1・9・字牌の刻子は中張牌（2〜8）より符が高くなります。槓子（4枚）はさらに高い符がつきます。" />
+        </div>
         <Button
           variant="secondary"
           className="w-full mb-3 text-sm"
@@ -155,6 +184,6 @@ export function StepFuInput({ onSubmit }: Props) {
       <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
         次へ
       </Button>
-    </div>
+    </>
   );
 }

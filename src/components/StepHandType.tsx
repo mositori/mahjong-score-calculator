@@ -14,7 +14,7 @@ const options: { label: string; description: string; value: HandType }[] = [
 
 export function StepHandType({ onSelect }: Props) {
   return (
-    <div className="step-animate">
+    <>
       <h2 className="text-xl font-bold text-center mb-5">手の形は？</h2>
       <div className="flex flex-col gap-3">
         {options.map((opt) => (
@@ -32,6 +32,6 @@ export function StepHandType({ onSelect }: Props) {
           </Button>
         ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -13,6 +13,7 @@ type Props = {
   fu: number;
   breakdown: string[];
   onReset: () => void;
+  onResetKeepDealer: () => void;
 };
 
 function useCountUp(target: number, duration = 800): number {
@@ -82,7 +83,7 @@ function ScoreValue({ value, label }: { value: number; label: string }) {
   );
 }
 
-export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: Props) {
+export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onResetKeepDealer }: Props) {
   const result = calculateScore(isDealer, isTsumo, han, fu);
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
@@ -98,7 +99,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: P
   }, [tierName]);
 
   return (
-    <div className="step-animate">
+    <>
       {/* Flash overlay for yakuman */}
       {isYakuman && <div className="yakuman-flash" />}
 
@@ -144,9 +145,12 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: P
         </CardContent>
       </Card>
 
-      <Button variant="secondary" className="w-full mt-5" size="lg" onClick={onReset}>
-        やり直す
+      <Button className="w-full mt-5" size="lg" onClick={onResetKeepDealer}>
+        もう一局
       </Button>
-    </div>
+      <Button variant="secondary" className="w-full mt-2" size="lg" onClick={onReset}>
+        最初からやり直す
+      </Button>
+    </>
   );
 }
