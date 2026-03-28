@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 
@@ -7,7 +8,7 @@ type Props = {
   onSelect: (isDealer: boolean) => void;
 };
 
-export function StepDealer({ honba, onHonbaChange, onSelect }: Props) {
+export const StepDealer = memo(function StepDealer({ honba, onHonbaChange, onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div className="flex-1 flex flex-col justify-center pb-[20svh]">
@@ -64,4 +65,4 @@ export function StepDealer({ honba, onHonbaChange, onSelect }: Props) {
       </div>
     </div>
   );
-}
+});

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import type { Step, HandType } from '../types';
 
@@ -20,7 +21,7 @@ function getProgress(step: Step, handType: HandType | null): number {
   return index / (path.length - 1);
 }
 
-export function ProgressBar({ step, handType }: Props) {
+export const ProgressBar = memo(function ProgressBar({ step, handType }: Props) {
   const progress = getProgress(step, handType);
   const shouldReduceMotion = useReducedMotion();
 
@@ -37,4 +38,4 @@ export function ProgressBar({ step, handType }: Props) {
       />
     </div>
   );
-}
+});

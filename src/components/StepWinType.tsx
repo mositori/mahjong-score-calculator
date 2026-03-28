@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 
@@ -5,7 +6,7 @@ type Props = {
   onSelect: (isTsumo: boolean) => void;
 };
 
-export function StepWinType({ onSelect }: Props) {
+export const StepWinType = memo(function StepWinType({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div className="flex-1 flex flex-col justify-center pb-[20svh]">
@@ -38,4 +39,4 @@ export function StepWinType({ onSelect }: Props) {
 
     </div>
   );
-}
+});

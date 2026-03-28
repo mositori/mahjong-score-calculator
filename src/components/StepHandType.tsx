@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import type { HandType } from '../types';
 import { Button } from './ui/button';
@@ -13,7 +14,7 @@ const options: { label: string; description: string; value: HandType }[] = [
   { label: 'その他', description: '上記以外の手', value: 'other' },
 ];
 
-export function StepHandType({ onSelect }: Props) {
+export const StepHandType = memo(function StepHandType({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <div className="flex-1 flex flex-col justify-center pb-[10svh]">
@@ -50,4 +51,4 @@ export function StepHandType({ onSelect }: Props) {
       </div>
     </div>
   );
-}
+});

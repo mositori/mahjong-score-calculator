@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
@@ -69,7 +69,7 @@ function HelpToggle({ text }: { text: string }) {
   );
 }
 
-function MentsuCard({ entry, index, onRemove }: {
+const MentsuCard = memo(function MentsuCard({ entry, index, onRemove }: {
   entry: MentsuEntry; index: number; onRemove: () => void;
 }) {
   const fu = getFu(entry);
@@ -91,9 +91,9 @@ function MentsuCard({ entry, index, onRemove }: {
       </button>
     </div>
   );
-}
+});
 
-export function StepFuInput({ onSubmit }: Props) {
+export const StepFuInput = memo(function StepFuInput({ onSubmit }: Props) {
   const [waitType, setWaitType] = useState<'open' | 'closed'>('open');
   const [jantouChoice, setJantouChoice] = useState<JantouChoice>('other');
   const shouldReduceMotion = useReducedMotion();
@@ -115,25 +115,25 @@ export function StepFuInput({ onSubmit }: Props) {
   const [currentConcealed, setCurrentConcealed] = useState<boolean | null>(null);
 
   const isYakuhaiHead = jantouChoice !== 'other';
-  const mentsuFu = entries.reduce((sum, e) => sum + getFu(e), 0);
+  const mentsuFu = useMemo(() => entries.reduce((sum, e) => sum + getFu(e), 0), [entries]);
 
-  const startAddMentsu = () => {
+  const startAddMentsu = useCallback(() => {
     setCurrentCount(null);
     setCurrentConcealed(null);
     setPhase('ask-count');
-  };
+  }, []);
 
-  const handleSetCount = (count: 3 | 4) => {
+  const handleSetCount = useCallback((count: 3 | 4) => {
     setCurrentCount(count);
     setPhase('ask-concealed');
-  };
+  }, []);
 
-  const handleSetConcealed = (concealed: boolean) => {
+  const handleSetConcealed = useCallback((concealed: boolean) => {
     setCurrentConcealed(concealed);
     setPhase('ask-terminal');
-  };
+  }, []);
 
-  const handleSetTerminal = (terminal: boolean) => {
+  const handleSetTerminal = useCallback((terminal: boolean) => {
     const newEntry: MentsuEntry = {
       count: currentCount!,
       isConcealed: currentConcealed!,
@@ -142,15 +142,17 @@ export function StepFuInput({ onSubmit }: Props) {
     const newEntries = [...entries, newEntry];
     setEntries(newEntries);
     setPhase('list');
-  };
+  }, [currentCount, currentConcealed, entries]);
 
-  const removeMentsu = (index: number) => {
-    const newEntries = entries.filter((_, i) => i !== index);
-    setEntries(newEntries);
-    if (newEntries.length === 0) {
-      setPhase('ask-has-mentsu');
-    }
-  };
+  const removeMentsu = useCallback((index: number) => {
+    setEntries((prev) => {
+      const newEntries = prev.filter((_, i) => i !== index);
+      if (newEntries.length === 0) {
+        setPhase('ask-has-mentsu');
+      }
+      return newEntries;
+    });
+  }, []);
 
   const phaseAnimation = itemAnimation(shouldReduceMotion);
 
@@ -475,4 +477,4 @@ export function StepFuInput({ onSubmit }: Props) {
       )}
     </>
   );
-}
+});
