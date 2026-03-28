@@ -55,11 +55,12 @@
 | `src/logic/scoreCalculator.ts` | `getTotalPoints()` — 合計得点の計算 |
 | `src/components/CelebrationOverlay.tsx` | アニメーションオーバーレイコンポーネント |
 | `src/components/ResultView.tsx` | リザルト画面（CelebrationOverlay を統合） |
-| `src/assets/IMG_5475.jpeg` | 祝福画像アセット |
+| `src/assets/IMG_5475.jpeg` | 祝福画像アセット（デフォルト） |
+| `src/assets/IMG_4948.jpeg` | 跳満（ハネマン）専用画像アセット |
 
 ## 今後の改良ポイント
 
 - アニメーションスタイルの切り替え（spin, curtain など）
-- 画像の差し替え機能
+- ~~画像の差し替え機能~~ → 跳満で専用画像を表示する機能を実装済み
 - 点数閾値のカスタマイズ
 - 効果音の追加
