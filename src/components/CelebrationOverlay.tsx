@@ -1,17 +1,25 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import confetti from 'canvas-confetti';
 import celebrationImg from '@/assets/IMG_5475.jpeg';
 import hanemanImg from '@/assets/IMG_4948.jpeg';
 
+const celebrationImages = [celebrationImg, hanemanImg];
+
 type Props = {
   show: boolean;
-  tierName?: string | null;
 };
 
-export function CelebrationOverlay({ show, tierName }: Props) {
+export function CelebrationOverlay({ show }: Props) {
   const prefersReduced = useReducedMotion();
   const [visible, setVisible] = useState(false);
+
+  // Pick a random image each time `show` becomes true
+  const selectedImage = useMemo(
+    () => celebrationImages[Math.floor(Math.random() * celebrationImages.length)],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [show],
+  );
 
   useEffect(() => {
     if (!show) return;
@@ -78,7 +86,7 @@ export function CelebrationOverlay({ show, tierName }: Props) {
               }}
             >
               <motion.img
-                src={tierName === '跳満' ? hanemanImg : celebrationImg}
+                src={selectedImage}
                 alt="Celebration!"
                 className="max-w-[280px] w-[70vw] rounded-xl shadow-2xl"
                 animate={
