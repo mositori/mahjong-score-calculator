@@ -68,15 +68,8 @@ export function calculateYakuHan(
   for (const yaku of yakuList) {
     const value = selection[yaku.id] ?? 0;
     if (value <= 0) continue;
-
-    if (yaku.type === 'toggle') {
-      const han = isMenzen ? yaku.han : yaku.kuisagari;
-      if (han > 0) total += han;
-    } else {
-      // counter (役牌 etc.)
-      const han = isMenzen ? yaku.han : yaku.kuisagari;
-      if (han > 0) total += han * value;
-    }
+    const han = isMenzen ? yaku.han : yaku.kuisagari;
+    if (han > 0) total += han * (yaku.type === 'counter' ? value : 1);
   }
 
   for (const dora of doraList) {

@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { State, Action, HandType, FuInputData } from './types';
+import { EASE_STANDARD } from './lib/motion';
 import { calculateFu } from './logic/fuCalculator';
 import { calculateYakuHan, yakuList, doraList } from './logic/yakuList';
 import { StepDealer } from './components/StepDealer';
@@ -134,11 +135,11 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
       if (value <= 0) continue;
       const h = state.isMenzen ? yaku.han : yaku.kuisagari;
       if (h <= 0) continue;
-      if (yaku.type === 'counter' && value > 0) {
-        breakdown.push(`${yaku.name}×${value}(${h * value}翻)`);
-      } else {
-        breakdown.push(`${yaku.name}(${h}翻)`);
-      }
+      breakdown.push(
+        yaku.type === 'counter'
+          ? `${yaku.name}×${value}(${h * value}翻)`
+          : `${yaku.name}(${h}翻)`,
+      );
     }
     for (const d of doraList) {
       const value = state.yakuSelection[d.id] ?? 0;
@@ -168,6 +169,9 @@ function App() {
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
   const isForward = state.transitionDirection === 'forward';
+  const resultData = state.step === 'result' && state.isDealer != null && state.isTsumo != null
+    ? { ...computeResult(state), isDealer: state.isDealer, isTsumo: state.isTsumo }
+    : null;
 
   const slideVariants = shouldReduceMotion
     ? { initial: {}, animate: {}, exit: {} }
@@ -219,7 +223,7 @@ function App() {
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: EASE_STANDARD }}
         >
           {state.step === 'dealer' && (
             <StepDealer
@@ -255,22 +259,19 @@ function App() {
             />
           )}
 
-          {state.step === 'result' && state.isDealer != null && state.isTsumo != null && (() => {
-            const { han, fu, breakdown } = computeResult(state);
-            return (
+          {resultData && (
               <ResultView
-                isDealer={state.isDealer!}
-                isTsumo={state.isTsumo!}
-                han={han}
-                fu={fu}
+                isDealer={resultData.isDealer}
+                isTsumo={resultData.isTsumo}
+                han={resultData.han}
+                fu={resultData.fu}
                 honba={state.honba}
-                breakdown={breakdown}
+                breakdown={resultData.breakdown}
                 onBack={() => dispatch({ type: 'BACK' })}
                 onReset={() => dispatch({ type: 'RESET' })}
                 onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
               />
-            );
-          })()}
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
