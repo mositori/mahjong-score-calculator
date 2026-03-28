@@ -11,6 +11,7 @@ describe('getExcludedYaku', () => {
       expect(excluded).toContain('toitoi');
       expect(excluded).toContain('sananko');
       expect(excluded).toContain('rinshan');
+      expect(excluded).toContain('yakuhai');
       // 除外されない役
       expect(excluded).not.toContain('tanyao');
       expect(excluded).not.toContain('riichi');
@@ -94,8 +95,8 @@ describe('getExcludedYaku', () => {
       // handType による排他
       expect(excluded).toContain('iipeiko');
       expect(excluded).toContain('toitoi');
-      // 選択による排他
       expect(excluded).toContain('yakuhai');
+      // 選択による排他
       expect(excluded).toContain('honitsu');
     });
   });

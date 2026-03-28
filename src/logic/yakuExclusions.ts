@@ -2,7 +2,7 @@ import type { HandType } from '../types';
 
 // A. handType による排他（手の形で確定的に除外）
 const handTypeExclusions: Partial<Record<HandType, string[]>> = {
-  chiitoitsu: ['iipeiko', 'sanshoku', 'ittsu', 'toitoi', 'sananko', 'rinshan'],
+  chiitoitsu: ['iipeiko', 'sanshoku', 'ittsu', 'toitoi', 'sananko', 'rinshan', 'yakuhai'],
   pinfu: ['yakuhai', 'toitoi', 'sananko', 'rinshan'],
 };
 
