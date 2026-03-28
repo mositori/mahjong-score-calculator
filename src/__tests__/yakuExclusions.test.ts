@@ -5,6 +5,7 @@ describe('getExcludedYaku', () => {
   describe('handType による排他', () => {
     test('七対子: 面子系・カン系の役を除外', () => {
       const excluded = getExcludedYaku('chiitoitsu', {});
+      // 既存の除外
       expect(excluded).toContain('iipeiko');
       expect(excluded).toContain('sanshoku');
       expect(excluded).toContain('ittsu');
@@ -12,22 +13,39 @@ describe('getExcludedYaku', () => {
       expect(excluded).toContain('sananko');
       expect(excluded).toContain('rinshan');
       expect(excluded).toContain('yakuhai');
+      // 新規の除外
+      expect(excluded).toContain('chankan');
+      expect(excluded).toContain('chanta');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('shousangen');
+      expect(excluded).toContain('junchan');
+      expect(excluded).toContain('ryanpeikou');
       // 除外されない役
       expect(excluded).not.toContain('tanyao');
       expect(excluded).not.toContain('riichi');
       expect(excluded).not.toContain('honitsu');
+      expect(excluded).not.toContain('honroutou');
     });
 
     test('ピンフ: 刻子系・カン系の役を除外', () => {
       const excluded = getExcludedYaku('pinfu', {});
+      // 既存の除外
       expect(excluded).toContain('yakuhai');
       expect(excluded).toContain('toitoi');
       expect(excluded).toContain('sananko');
       expect(excluded).toContain('rinshan');
+      // 新規の除外
+      expect(excluded).toContain('chankan');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('shousangen');
+      expect(excluded).toContain('honroutou');
       // 除外されない役
       expect(excluded).not.toContain('tanyao');
       expect(excluded).not.toContain('sanshoku');
       expect(excluded).not.toContain('iipeiko');
+      expect(excluded).not.toContain('ryanpeikou');
+      expect(excluded).not.toContain('chanta');
+      expect(excluded).not.toContain('junchan');
     });
 
     test('other: handType による除外なし', () => {
@@ -42,15 +60,23 @@ describe('getExcludedYaku', () => {
   });
 
   describe('役同士の相互排他', () => {
-    test('タンヤオ選択時: 役牌・混一色を除外', () => {
+    test('タンヤオ選択時: 役牌・混一色・一気通貫を除外', () => {
       const excluded = getExcludedYaku('other', { tanyao: 1 });
       expect(excluded).toContain('yakuhai');
       expect(excluded).toContain('honitsu');
+      expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('chanta');
+      expect(excluded).toContain('shousangen');
+      expect(excluded).toContain('honroutou');
+      expect(excluded).toContain('junchan');
     });
 
-    test('役牌選択時: タンヤオを除外', () => {
+    test('役牌選択時: タンヤオ・清一色・純チャンを除外', () => {
       const excluded = getExcludedYaku('other', { yakuhai: 2 });
       expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('chinitsu');
+      expect(excluded).toContain('junchan');
+      expect(excluded).toContain('ryanpeikou');
     });
 
     test('対々和選択時: 順子系の役を除外', () => {
@@ -58,6 +84,7 @@ describe('getExcludedYaku', () => {
       expect(excluded).toContain('iipeiko');
       expect(excluded).toContain('sanshoku');
       expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('ryanpeikou');
     });
 
     test('三暗刻選択時: 順子系の役を除外', () => {
@@ -65,17 +92,26 @@ describe('getExcludedYaku', () => {
       expect(excluded).toContain('iipeiko');
       expect(excluded).toContain('sanshoku');
       expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('ryanpeikou');
     });
 
-    test('混一色選択時: 清一色・タンヤオを除外', () => {
+    test('混一色選択時: 清一色・タンヤオ・三色系を除外', () => {
       const excluded = getExcludedYaku('other', { honitsu: 1 });
       expect(excluded).toContain('chinitsu');
       expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('junchan');
     });
 
-    test('清一色選択時: 混一色を除外', () => {
+    test('清一色選択時: 混一色・役牌・三色系を除外', () => {
       const excluded = getExcludedYaku('other', { chinitsu: 1 });
       expect(excluded).toContain('honitsu');
+      expect(excluded).toContain('yakuhai');
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('shousangen');
+      expect(excluded).toContain('honroutou');
     });
 
     test('三色同順と一気通貫は相互排他', () => {
@@ -86,6 +122,88 @@ describe('getExcludedYaku', () => {
     test('海底/河底と嶺上開花は相互排他', () => {
       expect(getExcludedYaku('other', { haitei: 1 })).toContain('rinshan');
       expect(getExcludedYaku('other', { rinshan: 1 })).toContain('haitei');
+    });
+
+    test('搶槓は海底・嶺上と相互排他', () => {
+      expect(getExcludedYaku('other', { chankan: 1 })).toContain('haitei');
+      expect(getExcludedYaku('other', { chankan: 1 })).toContain('rinshan');
+      expect(getExcludedYaku('other', { haitei: 1 })).toContain('chankan');
+      expect(getExcludedYaku('other', { rinshan: 1 })).toContain('chankan');
+    });
+
+    test('ダブルリーチとリーチは相互排他', () => {
+      expect(getExcludedYaku('other', { double_riichi: 1 })).toContain('riichi');
+      expect(getExcludedYaku('other', { riichi: 1 })).toContain('double_riichi');
+    });
+
+    test('チャンタの排他: タンヤオ・純チャン・混老頭・一気通貫', () => {
+      const excluded = getExcludedYaku('other', { chanta: 1 });
+      expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('junchan');
+      expect(excluded).toContain('honroutou');
+      expect(excluded).toContain('ittsu');
+    });
+
+    test('三色同刻の排他: 三色同順・一盃口・一気通貫・混一色・清一色・二盃口', () => {
+      const excluded = getExcludedYaku('other', { sanshoku_doukou: 1 });
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('iipeiko');
+      expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('honitsu');
+      expect(excluded).toContain('chinitsu');
+      expect(excluded).toContain('ryanpeikou');
+    });
+
+    test('小三元の排他: タンヤオ・清一色・二盃口', () => {
+      const excluded = getExcludedYaku('other', { shousangen: 1 });
+      expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('chinitsu');
+      expect(excluded).toContain('ryanpeikou');
+    });
+
+    test('混老頭の排他: タンヤオ・一盃口・三色同順・一気通貫・清一色・二盃口', () => {
+      const excluded = getExcludedYaku('other', { honroutou: 1 });
+      expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('iipeiko');
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('chinitsu');
+      expect(excluded).toContain('ryanpeikou');
+      expect(excluded).toContain('chanta');
+    });
+
+    test('純チャンの排他: タンヤオ・役牌・混一色・一気通貫', () => {
+      const excluded = getExcludedYaku('other', { junchan: 1 });
+      expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('yakuhai');
+      expect(excluded).toContain('honitsu');
+      expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('chanta');
+    });
+
+    test('二盃口の排他: 一盃口・対々和・三暗刻・三色同順・一気通貫・役牌', () => {
+      const excluded = getExcludedYaku('other', { ryanpeikou: 1 });
+      expect(excluded).toContain('iipeiko');
+      expect(excluded).toContain('toitoi');
+      expect(excluded).toContain('sananko');
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('ittsu');
+      expect(excluded).toContain('yakuhai');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('shousangen');
+      expect(excluded).toContain('honroutou');
+    });
+
+    test('一気通貫選択時: タンヤオも除外される', () => {
+      const excluded = getExcludedYaku('other', { ittsu: 1 });
+      expect(excluded).toContain('tanyao');
+      expect(excluded).toContain('sanshoku');
+      expect(excluded).toContain('toitoi');
+      expect(excluded).toContain('sananko');
+      expect(excluded).toContain('chanta');
+      expect(excluded).toContain('sanshoku_doukou');
+      expect(excluded).toContain('junchan');
+      expect(excluded).toContain('ryanpeikou');
     });
   });
 
@@ -98,6 +216,13 @@ describe('getExcludedYaku', () => {
       expect(excluded).toContain('yakuhai');
       // 選択による排他
       expect(excluded).toContain('honitsu');
+      expect(excluded).toContain('ittsu');
+    });
+
+    test('七対子 + 混老頭: 両立可能（除外されない）', () => {
+      const excluded = getExcludedYaku('chiitoitsu', { honroutou: 1 });
+      // honroutou自体は七対子で除外されていない
+      expect(excluded).not.toContain('honroutou');
     });
   });
 
@@ -111,11 +236,16 @@ describe('getExcludedYaku', () => {
 });
 
 describe('getConflictingYaku', () => {
-  test('タンヤオの競合: 役牌・混一色', () => {
+  test('タンヤオの競合: 役牌・混一色・一気通貫・チャンタ・小三元・混老頭・純チャン', () => {
     const conflicts = getConflictingYaku('tanyao');
     expect(conflicts).toContain('yakuhai');
     expect(conflicts).toContain('honitsu');
-    expect(conflicts).toHaveLength(2);
+    expect(conflicts).toContain('ittsu');
+    expect(conflicts).toContain('chanta');
+    expect(conflicts).toContain('shousangen');
+    expect(conflicts).toContain('honroutou');
+    expect(conflicts).toContain('junchan');
+    expect(conflicts).toHaveLength(7);
   });
 
   test('対々和の競合: 順子系の役', () => {
@@ -123,16 +253,38 @@ describe('getConflictingYaku', () => {
     expect(conflicts).toContain('iipeiko');
     expect(conflicts).toContain('sanshoku');
     expect(conflicts).toContain('ittsu');
-    expect(conflicts).toHaveLength(3);
+    expect(conflicts).toContain('ryanpeikou');
+    expect(conflicts).toHaveLength(4);
   });
 
-  test('海底/河底の競合: 嶺上開花のみ', () => {
+  test('海底/河底の競合: 嶺上開花・搶槓', () => {
     const conflicts = getConflictingYaku('haitei');
-    expect(conflicts).toEqual(['rinshan']);
+    expect(conflicts).toContain('rinshan');
+    expect(conflicts).toContain('chankan');
+    expect(conflicts).toHaveLength(2);
   });
 
   test('排他ルールのない役: 空配列', () => {
-    const conflicts = getConflictingYaku('riichi');
+    const conflicts = getConflictingYaku('ippatsu');
     expect(conflicts).toEqual([]);
+  });
+
+  test('二盃口の競合数', () => {
+    const conflicts = getConflictingYaku('ryanpeikou');
+    expect(conflicts).toContain('iipeiko');
+    expect(conflicts).toContain('toitoi');
+    expect(conflicts).toContain('sananko');
+    expect(conflicts).toContain('sanshoku');
+    expect(conflicts).toContain('ittsu');
+    expect(conflicts).toContain('yakuhai');
+    expect(conflicts).toContain('sanshoku_doukou');
+    expect(conflicts).toContain('shousangen');
+    expect(conflicts).toContain('honroutou');
+    expect(conflicts).toHaveLength(9);
+  });
+
+  test('ダブルリーチの競合: リーチのみ', () => {
+    const conflicts = getConflictingYaku('double_riichi');
+    expect(conflicts).toEqual(['riichi']);
   });
 });

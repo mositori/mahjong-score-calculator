@@ -15,7 +15,7 @@ type Props = {
 export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
   const [selection, setSelection] = useState<Record<string, number>>({});
 
-  const isRiichi = (selection['riichi'] ?? 0) > 0;
+  const isRiichi = (selection['riichi'] ?? 0) > 0 || (selection['double_riichi'] ?? 0) > 0;
 
   const toggle = (id: string) => {
     setSelection((prev) => {
