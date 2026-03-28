@@ -37,7 +37,7 @@ export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
   });
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+    <div className="step-animate">
       <h2 className="text-xl font-bold text-center mb-5">あてはまる役をタップ</h2>
 
       {/* 役 */}
