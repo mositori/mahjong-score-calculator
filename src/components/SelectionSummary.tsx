@@ -1,0 +1,42 @@
+import type { State } from '../types';
+
+type Props = {
+  state: State;
+};
+
+const handTypeLabels: Record<string, string> = {
+  yakuman: '役満',
+  chiitoitsu: '七対子',
+  pinfu: 'ピンフ',
+  other: 'その他',
+};
+
+export function SelectionSummary({ state }: Props) {
+  const items: string[] = [];
+
+  if (state.isDealer !== null) {
+    items.push(state.isDealer ? '親' : '子');
+  }
+  if (state.isTsumo !== null) {
+    items.push(state.isTsumo ? 'ツモ' : 'ロン');
+  }
+  if (state.handType !== null) {
+    items.push(handTypeLabels[state.handType]);
+  }
+  if (state.handType === 'other' && state.step !== 'menzen' && state.stepHistory.includes('menzen')) {
+    items.push(state.isMenzen ? '門前' : '副露');
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3 flex-wrap">
+      {items.map((item, i) => (
+        <span key={i} className="flex items-center gap-1.5">
+          {i > 0 && <span className="text-muted-foreground/50">›</span>}
+          <span>{item}</span>
+        </span>
+      ))}
+    </div>
+  );
+}

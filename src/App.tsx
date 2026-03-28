@@ -9,11 +9,15 @@ import { StepMenzen } from './components/StepMenzen';
 import { StepFuInput } from './components/StepFuInput';
 import { StepYakuSelect } from './components/StepYakuSelect';
 import { ResultView } from './components/ResultView';
+import { ProgressBar } from './components/ProgressBar';
+import { SelectionSummary } from './components/SelectionSummary';
 import { Button } from './components/ui/button';
 
 const initialState: State = {
   step: 'dealer',
   stepHistory: [],
+  stepKey: 0,
+  transitionDirection: 'forward',
   isDealer: null,
   isTsumo: null,
   handType: null,
@@ -28,6 +32,8 @@ function reducer(state: State, action: Action): State {
     ...updates,
     step: nextStep,
     stepHistory: [...state.stepHistory, state.step],
+    stepKey: state.stepKey + 1,
+    transitionDirection: 'forward',
   });
 
   switch (action.type) {
@@ -62,11 +68,27 @@ function reducer(state: State, action: Action): State {
       if (state.stepHistory.length === 0) return state;
       const history = [...state.stepHistory];
       const prevStep = history.pop()!;
-      return { ...state, step: prevStep, stepHistory: history };
+      return {
+        ...state,
+        step: prevStep,
+        stepHistory: history,
+        stepKey: state.stepKey + 1,
+        transitionDirection: 'back',
+      };
     }
 
     case 'RESET':
-      return initialState;
+      return { ...initialState, stepKey: state.stepKey + 1 };
+
+    case 'RESET_KEEP_DEALER':
+      return {
+        ...initialState,
+        step: 'winType',
+        stepHistory: ['dealer'],
+        stepKey: state.stepKey + 1,
+        transitionDirection: 'forward',
+        isDealer: state.isDealer,
+      };
   }
 }
 
@@ -138,10 +160,19 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
+  const animClass = state.transitionDirection === 'back' ? 'step-animate-back' : 'step-animate-forward';
 
   return (
     <div className="max-w-md mx-auto px-5 py-8">
-      <h1 className="text-2xl font-bold text-center text-primary mb-6">麻雀点数計算</h1>
+      <h1 className="text-2xl font-bold text-center text-primary mb-4">麻雀点数計算</h1>
+
+      {state.step !== 'result' && (
+        <ProgressBar step={state.step} handType={state.handType} />
+      )}
+
+      {state.step !== 'dealer' && state.step !== 'result' && (
+        <SelectionSummary state={state} />
+      )}
 
       {showBack && (
         <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
@@ -149,47 +180,50 @@ function App() {
         </Button>
       )}
 
-      {state.step === 'dealer' && (
-        <StepDealer onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })} />
-      )}
+      <div key={state.stepKey} className={animClass}>
+        {state.step === 'dealer' && (
+          <StepDealer onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })} />
+        )}
 
-      {state.step === 'winType' && (
-        <StepWinType onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })} />
-      )}
+        {state.step === 'winType' && (
+          <StepWinType onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })} />
+        )}
 
-      {state.step === 'handType' && (
-        <StepHandType onSelect={(handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType })} />
-      )}
+        {state.step === 'handType' && (
+          <StepHandType onSelect={(handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType })} />
+        )}
 
-      {state.step === 'menzen' && (
-        <StepMenzen onSelect={(isMenzen) => dispatch({ type: 'SET_MENZEN', isMenzen })} />
-      )}
+        {state.step === 'menzen' && (
+          <StepMenzen onSelect={(isMenzen) => dispatch({ type: 'SET_MENZEN', isMenzen })} />
+        )}
 
-      {state.step === 'fuInput' && (
-        <StepFuInput onSubmit={(data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data })} />
-      )}
+        {state.step === 'fuInput' && (
+          <StepFuInput onSubmit={(data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data })} />
+        )}
 
-      {state.step === 'yakuSelect' && (
-        <StepYakuSelect
-          isMenzen={state.isMenzen}
-          handType={state.handType}
-          onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
-        />
-      )}
-
-      {state.step === 'result' && state.isDealer != null && state.isTsumo != null && (() => {
-        const { han, fu, breakdown } = computeResult(state);
-        return (
-          <ResultView
-            isDealer={state.isDealer!}
-            isTsumo={state.isTsumo!}
-            han={han}
-            fu={fu}
-            breakdown={breakdown}
-            onReset={() => dispatch({ type: 'RESET' })}
+        {state.step === 'yakuSelect' && (
+          <StepYakuSelect
+            isMenzen={state.isMenzen}
+            handType={state.handType}
+            onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
           />
-        );
-      })()}
+        )}
+
+        {state.step === 'result' && state.isDealer != null && state.isTsumo != null && (() => {
+          const { han, fu, breakdown } = computeResult(state);
+          return (
+            <ResultView
+              isDealer={state.isDealer!}
+              isTsumo={state.isTsumo!}
+              han={han}
+              fu={fu}
+              breakdown={breakdown}
+              onReset={() => dispatch({ type: 'RESET' })}
+              onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
+            />
+          );
+        })()}
+      </div>
     </div>
   );
 }

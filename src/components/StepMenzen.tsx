@@ -6,7 +6,7 @@ type Props = {
 
 export function StepMenzen({ onSelect }: Props) {
   return (
-    <div className="step-animate">
+    <>
       <h2 className="text-xl font-bold text-center mb-2">門前ですか？</h2>
       <p className="text-sm text-muted-foreground text-center mb-6">
         チー・ポン・明カンしていない場合は「門前」
@@ -15,6 +15,6 @@ export function StepMenzen({ onSelect }: Props) {
         <Button variant="outline" className="h-16 text-lg font-bold" onClick={() => onSelect(true)}>門前</Button>
         <Button variant="outline" className="h-16 text-lg font-bold" onClick={() => onSelect(false)}>鳴いている</Button>
       </div>
-    </div>
+    </>
   );
 }
