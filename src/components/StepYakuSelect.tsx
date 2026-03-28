@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { yakuList, doraList } from '../logic/yakuList';
 import { getExcludedYaku, getConflictingYaku } from '../logic/yakuExclusions';
 import type { HandType } from '../types';
@@ -43,6 +44,16 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
     });
   };
 
+  const shouldReduceMotion = useReducedMotion();
+  const itemAnimation = shouldReduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 8 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -8 },
+        transition: { duration: 0.18, ease: [0.25, 0.1, 0.25, 1] as const },
+      };
+
   const excluded = getExcludedYaku(handType, selection);
 
   const visibleYaku = yakuList.filter((yaku) => {
@@ -66,48 +77,57 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       <div className="mb-5">
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">役</h3>
         <div className="flex flex-col gap-2">
-          {visibleYaku.map((yaku) => {
-            const value = selection[yaku.id] ?? 0;
-            const han = isMenzen ? yaku.han : yaku.kuisagari;
+          <AnimatePresence initial={false} mode="popLayout">
+            {visibleYaku.map((yaku) => {
+              const value = selection[yaku.id] ?? 0;
+              const han = isMenzen ? yaku.han : yaku.kuisagari;
 
-            if (yaku.type === 'counter') {
-              return (
-                <div key={yaku.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm">{yaku.name}</span>
-                      <span className="text-xs font-bold text-primary">+{han}翻</span>
+              if (yaku.type === 'counter') {
+                return (
+                  <motion.div
+                    key={yaku.id}
+                    layout={!shouldReduceMotion}
+                    {...itemAnimation}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm">{yaku.name}</span>
+                        <span className="text-xs font-bold text-primary">+{han}翻</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{yaku.description}</span>
+                      {yaku.example && <TileDisplay example={yaku.example} />}
                     </div>
-                    <span className="text-xs text-muted-foreground">{yaku.description}</span>
-                    {yaku.example && <TileDisplay example={yaku.example} />}
-                  </div>
-                  <div className="flex items-center gap-2 ml-3">
-                    <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, -1, yaku.maxCount ?? 4)}>-</Button>
-                    <span className="w-5 text-center font-bold text-sm">{value}</span>
-                    <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, 1, yaku.maxCount ?? 4)}>+</Button>
-                  </div>
-                </div>
-              );
-            }
+                    <div className="flex items-center gap-2 ml-3">
+                      <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, -1, yaku.maxCount ?? 4)}>-</Button>
+                      <span className="w-5 text-center font-bold text-sm">{value}</span>
+                      <Button variant="outline" size="counter" onClick={() => setCount(yaku.id, 1, yaku.maxCount ?? 4)}>+</Button>
+                    </div>
+                  </motion.div>
+                );
+              }
 
-            return (
-              <button
-                key={yaku.id}
-                className={cn(
-                  "w-full text-left p-3 rounded-lg border-2 transition-colors",
-                  value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/30"
-                )}
-                onClick={() => toggle(yaku.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
-                  <span className="text-xs font-bold text-primary">+{han}翻</span>
-                </div>
-                <span className="text-xs text-muted-foreground">{yaku.description}</span>
-                {yaku.example && <TileDisplay example={yaku.example} />}
-              </button>
-            );
-          })}
+              return (
+                <motion.button
+                  key={yaku.id}
+                  layout={!shouldReduceMotion}
+                  {...itemAnimation}
+                  className={cn(
+                    "w-full text-left p-3 rounded-lg border-2 transition-colors",
+                    value ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/30"
+                  )}
+                  onClick={() => toggle(yaku.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={cn("font-bold text-sm", value && "text-primary")}>{yaku.name}</span>
+                    <span className="text-xs font-bold text-primary">+{han}翻</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{yaku.description}</span>
+                  {yaku.example && <TileDisplay example={yaku.example} />}
+                </motion.button>
+              );
+            })}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -115,16 +135,23 @@ export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
       <div className="mb-5">
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">ドラ</h3>
         <div className="flex flex-col gap-2">
-          {visibleDora.map((d) => (
-            <div key={d.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-              <span className="font-bold text-sm">{d.name}</span>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" size="counter" onClick={() => setCount(d.id, -1, d.maxCount)}>-</Button>
-                <span className="w-5 text-center font-bold text-sm">{selection[d.id] ?? 0}</span>
-                <Button variant="outline" size="counter" onClick={() => setCount(d.id, 1, d.maxCount)}>+</Button>
-              </div>
-            </div>
-          ))}
+          <AnimatePresence initial={false} mode="popLayout">
+            {visibleDora.map((d) => (
+              <motion.div
+                key={d.id}
+                layout={!shouldReduceMotion}
+                {...itemAnimation}
+                className="flex items-center justify-between p-3 rounded-lg border bg-card"
+              >
+                <span className="font-bold text-sm">{d.name}</span>
+                <div className="flex items-center gap-3">
+                  <Button variant="outline" size="counter" onClick={() => setCount(d.id, -1, d.maxCount)}>-</Button>
+                  <span className="w-5 text-center font-bold text-sm">{selection[d.id] ?? 0}</span>
+                  <Button variant="outline" size="counter" onClick={() => setCount(d.id, 1, d.maxCount)}>+</Button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       </div>
 
