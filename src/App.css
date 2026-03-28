@@ -12,13 +12,21 @@
   margin-bottom: 8px;
 }
 
-.progress {
-  text-align: center;
+/* Back button */
+.back-button {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
   font-size: 14px;
+  font-family: inherit;
   color: var(--text-light);
-  margin-bottom: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Step common */
 .step {
   animation: fadeIn 0.2s ease-in;
 }
@@ -36,6 +44,13 @@
   color: var(--text);
 }
 
+.step-hint {
+  font-size: 13px;
+  color: var(--text-light);
+  text-align: center;
+  margin: -12px 0 16px;
+}
+
 .step-options {
   display: grid;
   gap: 12px;
@@ -49,6 +64,30 @@
   grid-template-columns: 1fr 1fr 1fr;
 }
 
+/* Options with description (StepHandType) */
+.step-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-with-desc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.option-with-desc .option-button {
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.option-desc {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* Option button */
 .option-button {
   display: flex;
   align-items: center;
@@ -78,6 +117,261 @@
   }
 }
 
+/* Fu Input sections */
+.fu-section {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fu-section:last-of-type {
+  border-bottom: none;
+}
+
+.fu-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+/* Toggle group (fu input) */
+.toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.toggle-btn {
+  padding: 10px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-light);
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.toggle-btn.active {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  font-weight: 600;
+}
+
+/* Counter controls */
+.counter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.counter-label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.counter-fu {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+
+.counter-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.counter-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--card-bg);
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.counter-btn:active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.counter-value {
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Shortcut & expand buttons */
+.shortcut-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.expand-btn {
+  display: block;
+  margin-top: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-light);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fu-total {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  text-align: right;
+}
+
+/* Submit button */
+.submit-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.submit-btn:active {
+  opacity: 0.85;
+}
+
+/* Yaku Select */
+.yaku-section {
+  margin-bottom: 20px;
+}
+
+.yaku-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.yaku-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.yaku-toggle {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  font-family: inherit;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.yaku-toggle.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.yaku-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.yaku-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.yaku-han {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.yaku-desc {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+  display: block;
+}
+
+.yaku-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 12px;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+
+.yaku-counter-row .yaku-desc {
+  width: 100%;
+}
+
+.dora-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Result */
 .result-card {
   background: var(--card-bg);
   border-radius: 16px;
@@ -120,6 +414,24 @@
   margin-top: 16px;
   font-size: 13px;
   color: var(--text-light);
+}
+
+.result-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.breakdown-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 20px;
+  font-weight: 600;
 }
 
 .reset-button {
