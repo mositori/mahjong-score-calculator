@@ -5,10 +5,11 @@ type Props = {
   isTsumo: boolean;
   han: number;
   fu: number;
+  breakdown: string[];
   onReset: () => void;
 };
 
-export function ResultView({ isDealer, isTsumo, han, fu, onReset }: Props) {
+export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: Props) {
   const result = calculateScore(isDealer, isTsumo, han, fu);
 
   return (
@@ -48,8 +49,16 @@ export function ResultView({ isDealer, isTsumo, han, fu, onReset }: Props) {
         )}
 
         <div className="result-detail">
-          {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'} / {han}翻{han < 5 ? ` ${fu}符` : ''}
+          {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
         </div>
+
+        {breakdown.length > 0 && (
+          <div className="result-breakdown">
+            {breakdown.map((item, i) => (
+              <span key={i} className="breakdown-tag">{item}</span>
+            ))}
+          </div>
+        )}
       </div>
 
       <button className="reset-button" onClick={onReset}>やり直す</button>
