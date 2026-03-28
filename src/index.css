@@ -72,40 +72,6 @@ body {
   min-height: 100svh;
 }
 
-@keyframes slideInForward {
-  from {
-    opacity: 0;
-    transform: translateX(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInBack {
-  from {
-    opacity: 0;
-    transform: translateX(-24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.step-animate-forward {
-  animation: slideInForward 0.2s ease-out;
-}
-
-.step-animate-back {
-  animation: slideInBack 0.2s ease-out;
-}
-
-.step-animate {
-  animation: slideInForward 0.2s ease-out;
-}
-
 @keyframes yakumanPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.08); }
