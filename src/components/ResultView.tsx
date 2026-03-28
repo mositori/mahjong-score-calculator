@@ -4,6 +4,7 @@ import { calculateScore, getTierName, getBasePoints } from '../logic/scoreCalcul
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { hapticResult } from '@/lib/haptics';
 
 type Props = {
   isDealer: boolean;
@@ -92,6 +93,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: P
     if (!hasFired.current) {
       hasFired.current = true;
       fireConfetti(tierName);
+      hapticResult(tierName);
     }
   }, [tierName]);
 
