@@ -8,14 +8,22 @@ export type YakuDef = {
   maxCount?: number; // counterの場合の最大値
   condition?: 'menzen' | 'riichi'; // 表示条件
   example?: string; // 牌の例示（スペース区切りで面子グループ、例: "2m3m4m 2p3p4p"）
+  group?: string; // UIグループ表示用
 };
+
+export const YAKUHAI_IDS = ['haku', 'hatsu', 'chun', 'bakaze', 'jikaze'] as const;
+export const DRAGON_YAKUHAI_IDS = ['haku', 'hatsu', 'chun'] as const;
 
 export const yakuList: YakuDef[] = [
   // 1翻役
   { id: 'riichi', name: 'リーチ', description: '宣言してから上がった', han: 1, kuisagari: 0, type: 'toggle', condition: 'menzen' },
   { id: 'ippatsu', name: '一発', description: 'リーチ後1巡以内に上がった', han: 1, kuisagari: 0, type: 'toggle', condition: 'riichi' },
   { id: 'tanyao', name: 'タンヤオ', description: '1・9・字牌がない', han: 1, kuisagari: 1, type: 'toggle', example: '2m3m4m 3p4p5p 4s5s6s 7s7s7s 8p8p' },
-  { id: 'yakuhai', name: '役牌', description: '白・發・中・場風・自風', han: 1, kuisagari: 1, type: 'counter', maxCount: 4, example: '5z5z5z' },
+  { id: 'haku',   name: '白',   description: '三元牌・白の刻子', han: 1, kuisagari: 1, type: 'toggle', example: '5z5z5z', group: 'yakuhai' },
+  { id: 'hatsu',  name: '發',   description: '三元牌・發の刻子', han: 1, kuisagari: 1, type: 'toggle', example: '6z6z6z', group: 'yakuhai' },
+  { id: 'chun',   name: '中',   description: '三元牌・中の刻子', han: 1, kuisagari: 1, type: 'toggle', example: '7z7z7z', group: 'yakuhai' },
+  { id: 'bakaze', name: '場風', description: '場風牌の刻子',     han: 1, kuisagari: 1, type: 'toggle', example: '1z1z1z', group: 'yakuhai' },
+  { id: 'jikaze', name: '自風', description: '自風牌の刻子',     han: 1, kuisagari: 1, type: 'toggle', example: '2z2z2z', group: 'yakuhai' },
   { id: 'iipeiko', name: '一盃口', description: '同じ順子が2組ある', han: 1, kuisagari: 0, type: 'toggle', condition: 'menzen', example: '3p3p4p4p5p5p' },
   { id: 'haitei', name: '海底/河底', description: '最後の牌で上がった', han: 1, kuisagari: 1, type: 'toggle' },
   { id: 'rinshan', name: '嶺上開花', description: 'カンした後に上がった', han: 1, kuisagari: 1, type: 'toggle' },

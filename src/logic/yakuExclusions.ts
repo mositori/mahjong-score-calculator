@@ -1,13 +1,15 @@
 import type { HandType } from '../types';
+import { YAKUHAI_IDS } from './yakuList';
 
 // A. handType による排他（手の形で確定的に除外）
 const handTypeExclusions: Partial<Record<HandType, string[]>> = {
   chiitoitsu: [
-    'iipeiko', 'sanshoku', 'ittsu', 'toitoi', 'sananko', 'rinshan', 'yakuhai',
+    'iipeiko', 'sanshoku', 'ittsu', 'toitoi', 'sananko', 'rinshan',
+    ...YAKUHAI_IDS,
     'chankan', 'chanta', 'sanshoku_doukou', 'shousangen', 'junchan', 'ryanpeikou',
   ],
   pinfu: [
-    'yakuhai', 'toitoi', 'sananko', 'rinshan',
+    ...YAKUHAI_IDS, 'toitoi', 'sananko', 'rinshan',
     'chankan', 'sanshoku_doukou', 'shousangen', 'honroutou',
   ],
 };
@@ -15,7 +17,7 @@ const handTypeExclusions: Partial<Record<HandType, string[]>> = {
 // B. 役同士の相互排他ペア
 const mutualExclusions: [string, string][] = [
   // --- 既存役同士 ---
-  ['tanyao', 'yakuhai'],
+  ...YAKUHAI_IDS.map(id => ['tanyao', id] as [string, string]),
   ['tanyao', 'honitsu'],
   ['tanyao', 'ittsu'],
   ['iipeiko', 'toitoi'],
@@ -27,7 +29,7 @@ const mutualExclusions: [string, string][] = [
   ['sanshoku', 'chinitsu'],
   ['ittsu', 'toitoi'],
   ['ittsu', 'sananko'],
-  ['yakuhai', 'chinitsu'],
+  ...YAKUHAI_IDS.map(id => [id, 'chinitsu'] as [string, string]),
   ['honitsu', 'chinitsu'],
   ['haitei', 'rinshan'],
 
@@ -67,7 +69,7 @@ const mutualExclusions: [string, string][] = [
 
   // --- 純チャン ---
   ['junchan', 'tanyao'],
-  ['junchan', 'yakuhai'],
+  ...YAKUHAI_IDS.map(id => ['junchan', id] as [string, string]),
   ['junchan', 'honitsu'],
   ['junchan', 'ittsu'],
 
@@ -77,7 +79,7 @@ const mutualExclusions: [string, string][] = [
   ['ryanpeikou', 'sananko'],
   ['ryanpeikou', 'sanshoku'],
   ['ryanpeikou', 'ittsu'],
-  ['ryanpeikou', 'yakuhai'],
+  ...YAKUHAI_IDS.map(id => ['ryanpeikou', id] as [string, string]),
 ];
 
 /** handType と現在の選択状態から、除外すべき役IDのSetを返す */
