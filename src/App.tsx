@@ -172,6 +172,7 @@ function App() {
       {state.step === 'yakuSelect' && (
         <StepYakuSelect
           isMenzen={state.isMenzen}
+          handType={state.handType}
           onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
         />
       )}
