@@ -142,4 +142,30 @@ describe('calculateScore', () => {
     expect(r.ronPayment).toBe(48000);
     expect(r.tierName).toBe('役満');
   });
+
+  test('子ロン 1翻30符 2本場 → 1600', () => {
+    const r = calculateScore(false, false, 1, 30, 2);
+    expect(r.ronPayment).toBe(1600);
+  });
+
+  test('親ロン 3翻40符 1本場 → 8000', () => {
+    const r = calculateScore(true, false, 3, 40, 1);
+    expect(r.ronPayment).toBe(8000);
+  });
+
+  test('子ツモ 1翻30符 1本場 → 親600/子400', () => {
+    const r = calculateScore(false, true, 1, 30, 1);
+    expect(r.tsumoPaymentDealer).toBe(600);
+    expect(r.tsumoPaymentNonDealer).toBe(400);
+  });
+
+  test('親ツモ 3翻40符 1本場 → 各2700', () => {
+    const r = calculateScore(true, true, 3, 40, 1);
+    expect(r.tsumoPaymentNonDealer).toBe(2700);
+  });
+
+  test('honba=0 は加算なし', () => {
+    const r = calculateScore(false, false, 1, 30, 0);
+    expect(r.ronPayment).toBe(1000);
+  });
 });

@@ -28,24 +28,25 @@ export function calculateScore(
   isTsumo: boolean,
   han: number,
   fu: number,
+  honba: number = 0,
 ): ScoreResult {
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
 
   if (isTsumo) {
     if (isDealer) {
-      const each = roundUpTo100(base * 2);
+      const each = roundUpTo100(base * 2) + 100 * honba;
       return { tierName, ronPayment: null, tsumoPaymentDealer: null, tsumoPaymentNonDealer: each };
     } else {
-      const dealerPays = roundUpTo100(base * 2);
-      const nonDealerPays = roundUpTo100(base);
+      const dealerPays = roundUpTo100(base * 2) + 100 * honba;
+      const nonDealerPays = roundUpTo100(base) + 100 * honba;
       return { tierName, ronPayment: null, tsumoPaymentDealer: dealerPays, tsumoPaymentNonDealer: nonDealerPays };
     }
   } else {
     if (isDealer) {
-      return { tierName, ronPayment: roundUpTo100(base * 6), tsumoPaymentDealer: null, tsumoPaymentNonDealer: null };
+      return { tierName, ronPayment: roundUpTo100(base * 6) + 300 * honba, tsumoPaymentDealer: null, tsumoPaymentNonDealer: null };
     } else {
-      return { tierName, ronPayment: roundUpTo100(base * 4), tsumoPaymentDealer: null, tsumoPaymentNonDealer: null };
+      return { tierName, ronPayment: roundUpTo100(base * 4) + 300 * honba, tsumoPaymentDealer: null, tsumoPaymentNonDealer: null };
     }
   }
 }

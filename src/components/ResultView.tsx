@@ -11,6 +11,7 @@ type Props = {
   isTsumo: boolean;
   han: number;
   fu: number;
+  honba: number;
   breakdown: string[];
   onReset: () => void;
   onResetKeepDealer: () => void;
@@ -83,8 +84,8 @@ function ScoreValue({ value, label }: { value: number; label: string }) {
   );
 }
 
-export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onResetKeepDealer }: Props) {
-  const result = calculateScore(isDealer, isTsumo, han, fu);
+export function ResultView({ isDealer, isTsumo, han, fu, honba, breakdown, onReset, onResetKeepDealer }: Props) {
+  const result = calculateScore(isDealer, isTsumo, han, fu, honba);
   const base = getBasePoints(han, fu);
   const tierName = getTierName(base);
   const isYakuman = tierName === '役満';
@@ -132,7 +133,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset, onR
           )}
 
           <div className="text-center text-xs text-muted-foreground mt-4">
-            {han}翻 {fu}符 — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
+            {han}翻 {fu}符{honba > 0 ? ` ${honba}本場` : ''} — {isDealer ? '親' : '子'} / {isTsumo ? 'ツモ' : 'ロン'}
           </div>
 
           {breakdown.length > 0 && (

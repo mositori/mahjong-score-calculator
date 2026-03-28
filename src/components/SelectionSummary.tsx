@@ -26,6 +26,9 @@ export function SelectionSummary({ state }: Props) {
   if (state.handType === 'other' && state.step !== 'menzen' && state.stepHistory.includes('menzen')) {
     items.push(state.isMenzen ? '門前' : '副露');
   }
+  if (state.honba > 0) {
+    items.push(`${state.honba}本場`);
+  }
 
   if (items.length === 0) return null;
 
