@@ -16,7 +16,7 @@ export function ResultView({ isDealer, isTsumo, han, fu, breakdown, onReset }: P
   const result = calculateScore(isDealer, isTsumo, han, fu);
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
+    <div className="step-animate">
       <Card>
         <CardHeader className="text-center pb-2">
           {result.tierName && (
