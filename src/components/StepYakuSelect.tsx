@@ -1,33 +1,54 @@
 import { useState } from 'react';
 import { yakuList, doraList } from '../logic/yakuList';
+import { getExcludedYaku, getConflictingYaku } from '../logic/yakuExclusions';
+import type { HandType } from '../types';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 
 type Props = {
   isMenzen: boolean;
+  handType: HandType | null;
   onSubmit: (selection: Record<string, number>) => void;
 };
 
-export function StepYakuSelect({ isMenzen, onSubmit }: Props) {
+export function StepYakuSelect({ isMenzen, handType, onSubmit }: Props) {
   const [selection, setSelection] = useState<Record<string, number>>({});
 
   const isRiichi = (selection['riichi'] ?? 0) > 0;
 
   const toggle = (id: string) => {
-    setSelection((prev) => ({ ...prev, [id]: prev[id] ? 0 : 1 }));
+    setSelection((prev) => {
+      const newValue = prev[id] ? 0 : 1;
+      const next = { ...prev, [id]: newValue };
+      if (newValue > 0) {
+        for (const conflict of getConflictingYaku(id)) {
+          next[conflict] = 0;
+        }
+      }
+      return next;
+    });
   };
 
   const setCount = (id: string, delta: number, max: number) => {
-    setSelection((prev) => ({
-      ...prev,
-      [id]: Math.max(0, Math.min(max, (prev[id] ?? 0) + delta)),
-    }));
+    setSelection((prev) => {
+      const newValue = Math.max(0, Math.min(max, (prev[id] ?? 0) + delta));
+      const next = { ...prev, [id]: newValue };
+      if (newValue > 0) {
+        for (const conflict of getConflictingYaku(id)) {
+          next[conflict] = 0;
+        }
+      }
+      return next;
+    });
   };
+
+  const excluded = getExcludedYaku(handType, selection);
 
   const visibleYaku = yakuList.filter((yaku) => {
     if (yaku.condition === 'menzen' && !isMenzen) return false;
     if (yaku.condition === 'riichi' && !isRiichi) return false;
     if (!isMenzen && yaku.kuisagari === 0) return false;
+    if (excluded.has(yaku.id)) return false;
     return true;
   });
 
