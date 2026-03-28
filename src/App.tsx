@@ -25,6 +25,7 @@ const initialState: State = {
   isMenzen: true,
   fuInputData: null,
   yakuSelection: null,
+  honba: 0,
 };
 
 function reducer(state: State, action: Action): State {
@@ -38,6 +39,9 @@ function reducer(state: State, action: Action): State {
   });
 
   switch (action.type) {
+    case 'SET_HONBA':
+      return { ...state, honba: action.honba };
+
     case 'SET_DEALER':
       return pushStep('winType', { isDealer: action.isDealer });
 
@@ -89,6 +93,7 @@ function reducer(state: State, action: Action): State {
         stepKey: state.stepKey + 1,
         transitionDirection: 'forward',
         isDealer: state.isDealer,
+        honba: state.honba + 1,
       };
   }
 }
@@ -217,7 +222,11 @@ function App() {
           transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
         >
           {state.step === 'dealer' && (
-            <StepDealer onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })} />
+            <StepDealer
+              honba={state.honba}
+              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
+              onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
+            />
           )}
 
           {state.step === 'winType' && (
@@ -252,6 +261,7 @@ function App() {
                 isTsumo={state.isTsumo!}
                 han={han}
                 fu={fu}
+                honba={state.honba}
                 breakdown={breakdown}
                 onReset={() => dispatch({ type: 'RESET' })}
                 onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}

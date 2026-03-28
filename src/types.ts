@@ -27,6 +27,7 @@ export type State = {
   isMenzen: boolean;
   fuInputData: FuInputData | null;
   yakuSelection: Record<string, number> | null;
+  honba: number;
 };
 
 export type Action =
@@ -36,6 +37,7 @@ export type Action =
   | { type: 'SET_MENZEN'; isMenzen: boolean }
   | { type: 'SET_FU_INPUT'; data: FuInputData }
   | { type: 'SET_YAKU'; selection: Record<string, number> }
+  | { type: 'SET_HONBA'; honba: number }
   | { type: 'BACK' }
   | { type: 'RESET' }
   | { type: 'RESET_KEEP_DEALER' };
