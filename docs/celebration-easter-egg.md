@@ -55,7 +55,7 @@
 | `src/logic/scoreCalculator.ts` | `getTotalPoints()` — 合計得点の計算 |
 | `src/components/CelebrationOverlay.tsx` | アニメーションオーバーレイコンポーネント |
 | `src/components/ResultView.tsx` | リザルト画面（CelebrationOverlay を統合） |
-| `src/assets/celebration.png` | 祝福画像アセット |
+| `src/assets/IMG_5475.jpeg` | 祝福画像アセット |
 
 ## 今後の改良ポイント
 
