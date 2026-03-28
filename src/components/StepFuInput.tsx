@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { FuInputData } from '../types';
 import { Button } from './ui/button';
 
@@ -38,6 +39,7 @@ type WizardPhase =
 
 function HelpToggle({ text }: { text: string }) {
   const [open, setOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   return (
     <>
       <button
@@ -47,11 +49,19 @@ function HelpToggle({ text }: { text: string }) {
       >
         ?
       </button>
-      {open && (
-        <p className="text-xs text-muted-foreground mt-1.5 p-2.5 bg-muted/50 rounded-md leading-relaxed">
-          {text}
-        </p>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.p
+            className="text-xs text-muted-foreground mt-1.5 p-2.5 bg-muted/50 rounded-md leading-relaxed overflow-hidden"
+            initial={shouldReduceMotion ? undefined : { opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+          >
+            {text}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -83,6 +93,7 @@ function MentsuCard({ entry, index, onRemove }: {
 export function StepFuInput({ onSubmit }: Props) {
   const [waitType, setWaitType] = useState<'open' | 'closed'>('open');
   const [isYakuhaiHead, setIsYakuhaiHead] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // Mentsu wizard state
   const [entries, setEntries] = useState<MentsuEntry[]>([]);
@@ -129,12 +140,33 @@ export function StepFuInput({ onSubmit }: Props) {
     }
   };
 
+  const phaseAnimation = shouldReduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 10 } as const,
+        animate: { opacity: 1, y: 0 } as const,
+        exit: { opacity: 0, y: -10 } as const,
+        transition: { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const },
+      };
+
   return (
     <>
-      <h2 className="text-xl font-bold text-center mb-5">符の計算</h2>
+      <motion.h2
+        className="text-xl font-bold text-center mb-5"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        符の計算
+      </motion.h2>
 
       {/* 待ちの形 */}
-      <div className="mb-5 pb-4 border-b">
+      <motion.div
+        className="mb-5 pb-4 border-b"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.05 }}
+      >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">待ちの形</h3>
           <HelpToggle text="最後のアガリ牌の受け入れが2種類以上なら「両面・シャンポン」です。例: 2-3で1と4待ちは両面。1-3で2だけ待ちは嵌張、1-2で3だけ待ちは辺張、1枚だけ待ちは単騎です。" />
@@ -158,10 +190,15 @@ export function StepFuInput({ onSubmit }: Props) {
             嵌張・辺張・単騎
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* 雀頭 */}
-      <div className="mb-5 pb-4 border-b">
+      <motion.div
+        className="mb-5 pb-4 border-b"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.1 }}
+      >
         <div className="flex items-center mb-1">
           <h3 className="text-sm font-bold">雀頭（頭）</h3>
           <HelpToggle text="頭が三元牌（白・發・中）、場風牌（東場なら東）、または自風牌（自分の風）の場合は「役牌」を選んでください。連風牌（例: 東場の東家の東）も「役牌」です。" />
@@ -185,206 +222,230 @@ export function StepFuInput({ onSubmit }: Props) {
             役牌
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* 刻子・槓子 wizard */}
-      <div className="mb-5">
+      <motion.div
+        className="mb-5"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: 0.15 }}
+      >
         <div className="flex items-center mb-3">
           <h3 className="text-sm font-bold">刻子・槓子</h3>
           <HelpToggle text="同じ牌3枚の組み合わせが刻子です。自分で揃えたら「暗刻」、ポンしたら「明刻」。1・9・字牌の刻子は中張牌（2〜8）より符が高くなります。槓子（4枚）はさらに高い符がつきます。" />
         </div>
 
-        {phase === 'ask-has-mentsu' && (
-          <div>
-            <p className="text-sm text-center mb-4 text-muted-foreground">
-              同じ牌3枚以上の組み合わせはありますか？
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="h-14 text-base font-bold"
-                onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu: 0 })}
-              >
-                なし（順子のみ）
-              </Button>
-              <Button
-                variant="outline"
-                className="h-14 text-base font-bold"
-                onClick={startAddMentsu}
-              >
-                ある
-              </Button>
-            </div>
-          </div>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {phase === 'ask-has-mentsu' && (
+            <motion.div key="ask-has-mentsu" {...phaseAnimation}>
+              <p className="text-sm text-center mb-4 text-muted-foreground">
+                同じ牌3枚以上の組み合わせはありますか？
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="h-14 text-base font-bold"
+                  onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu: 0 })}
+                >
+                  なし（順子のみ）
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-14 text-base font-bold"
+                  onClick={startAddMentsu}
+                >
+                  ある
+                </Button>
+              </div>
+            </motion.div>
+          )}
 
-        {phase === 'ask-count' && (
-          <div>
-            <p className="text-sm text-center mb-1 font-bold">
-              {entries.length + 1}組目
-            </p>
-            <p className="text-sm text-center mb-4 text-muted-foreground">
-              何枚の組み合わせ？
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetCount(3)}
-              >
-                <div>
-                  <div className="text-base font-bold">3枚（刻子）</div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">ポンや暗刻</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetCount(4)}
-              >
-                <div>
-                  <div className="text-base font-bold">4枚（槓子）</div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">カンした牌</div>
-                </div>
-              </Button>
-            </div>
-            {entries.length > 0 && (
+          {phase === 'ask-count' && (
+            <motion.div key="ask-count" {...phaseAnimation}>
+              <p className="text-sm text-center mb-1 font-bold">
+                {entries.length + 1}組目
+              </p>
+              <p className="text-sm text-center mb-4 text-muted-foreground">
+                何枚の組み合わせ？
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetCount(3)}
+                >
+                  <div>
+                    <div className="text-base font-bold">3枚（刻子）</div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">ポンや暗刻</div>
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetCount(4)}
+                >
+                  <div>
+                    <div className="text-base font-bold">4枚（槓子）</div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">カンした牌</div>
+                  </div>
+                </Button>
+              </div>
+              {entries.length > 0 && (
+                <button
+                  className="w-full mt-3 text-xs text-muted-foreground underline"
+                  onClick={() => setPhase('list')}
+                >
+                  やめる
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {phase === 'ask-concealed' && (
+            <motion.div key="ask-concealed" {...phaseAnimation}>
+              <p className="text-sm text-center mb-1 font-bold">
+                {entries.length + 1}組目 — {currentCount === 3 ? '刻子' : '槓子'}
+              </p>
+              <p className="text-sm text-center mb-4 text-muted-foreground">
+                どうやって揃えた？
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetConcealed(false)}
+                >
+                  <div>
+                    <div className="text-base font-bold">
+                      {currentCount === 3 ? 'ポンした（明）' : '明槓・加槓'}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                      {currentCount === 3 ? '他家から鳴いた' : '他家から鳴いた or 加槓'}
+                    </div>
+                  </div>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetConcealed(true)}
+                >
+                  <div>
+                    <div className="text-base font-bold">
+                      {currentCount === 3 ? '自力で揃えた（暗）' : '暗槓'}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                      {currentCount === 3 ? '鳴かずに手牌で揃えた' : '手牌4枚でカン'}
+                    </div>
+                  </div>
+                </Button>
+              </div>
               <button
                 className="w-full mt-3 text-xs text-muted-foreground underline"
-                onClick={() => setPhase('list')}
+                onClick={() => setPhase('ask-count')}
               >
-                やめる
+                戻る
               </button>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
 
-        {phase === 'ask-concealed' && (
-          <div>
-            <p className="text-sm text-center mb-1 font-bold">
-              {entries.length + 1}組目 — {currentCount === 3 ? '刻子' : '槓子'}
-            </p>
-            <p className="text-sm text-center mb-4 text-muted-foreground">
-              どうやって揃えた？
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetConcealed(false)}
-              >
-                <div>
-                  <div className="text-base font-bold">
-                    {currentCount === 3 ? 'ポンした（明）' : '明槓・加槓'}
+          {phase === 'ask-terminal' && (
+            <motion.div key="ask-terminal" {...phaseAnimation}>
+              <p className="text-sm text-center mb-1 font-bold">
+                {entries.length + 1}組目 — {currentConcealed
+                  ? (currentCount === 3 ? '暗刻' : '暗槓')
+                  : (currentCount === 3 ? '明刻' : '明槓')}
+              </p>
+              <p className="text-sm text-center mb-4 text-muted-foreground">
+                どんな牌？
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetTerminal(false)}
+                >
+                  <div>
+                    <div className="text-base font-bold">中張牌</div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">2〜8の数牌</div>
                   </div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                    {currentCount === 3 ? '他家から鳴いた' : '他家から鳴いた or 加槓'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-auto py-4 text-left justify-start"
+                  onClick={() => handleSetTerminal(true)}
+                >
+                  <div>
+                    <div className="text-base font-bold">么九牌</div>
+                    <div className="text-xs text-muted-foreground font-normal mt-0.5">1, 9, 字牌</div>
                   </div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetConcealed(true)}
-              >
-                <div>
-                  <div className="text-base font-bold">
-                    {currentCount === 3 ? '自力で揃えた（暗）' : '暗槓'}
-                  </div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                    {currentCount === 3 ? '鳴かずに手牌で揃えた' : '手牌4枚でカン'}
-                  </div>
-                </div>
-              </Button>
-            </div>
-            <button
-              className="w-full mt-3 text-xs text-muted-foreground underline"
-              onClick={() => setPhase('ask-count')}
-            >
-              戻る
-            </button>
-          </div>
-        )}
-
-        {phase === 'ask-terminal' && (
-          <div>
-            <p className="text-sm text-center mb-1 font-bold">
-              {entries.length + 1}組目 — {currentConcealed
-                ? (currentCount === 3 ? '暗刻' : '暗槓')
-                : (currentCount === 3 ? '明刻' : '明槓')}
-            </p>
-            <p className="text-sm text-center mb-4 text-muted-foreground">
-              どんな牌？
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetTerminal(false)}
-              >
-                <div>
-                  <div className="text-base font-bold">中張牌</div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">2〜8の数牌</div>
-                </div>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-auto py-4 text-left justify-start"
-                onClick={() => handleSetTerminal(true)}
-              >
-                <div>
-                  <div className="text-base font-bold">么九牌</div>
-                  <div className="text-xs text-muted-foreground font-normal mt-0.5">1, 9, 字牌</div>
-                </div>
-              </Button>
-            </div>
-            <button
-              className="w-full mt-3 text-xs text-muted-foreground underline"
-              onClick={() => setPhase('ask-concealed')}
-            >
-              戻る
-            </button>
-          </div>
-        )}
-
-        {phase === 'list' && (
-          <div>
-            <div className="flex flex-col gap-2 mb-3">
-              {entries.map((entry, i) => (
-                <MentsuCard
-                  key={i}
-                  entry={entry}
-                  index={i}
-                  onRemove={() => removeMentsu(i)}
-                />
-              ))}
-            </div>
-
-            {entries.length < 4 && (
+                </Button>
+              </div>
               <button
-                className="w-full py-2.5 text-sm text-primary font-semibold border-2 border-dashed border-primary/30 rounded-lg hover:bg-primary/5"
-                onClick={startAddMentsu}
+                className="w-full mt-3 text-xs text-muted-foreground underline"
+                onClick={() => setPhase('ask-concealed')}
               >
-                + もう1組追加（{entries.length}/4）
+                戻る
               </button>
-            )}
+            </motion.div>
+          )}
 
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">面子: {entries.length}/4</span>
-              {mentsuFu > 0 && (
-                <span className="text-sm font-bold text-primary">
-                  刻子・槓子の符: +{mentsuFu}
-                </span>
+          {phase === 'list' && (
+            <motion.div key="list" {...phaseAnimation}>
+              <div className="flex flex-col gap-2 mb-3">
+                <AnimatePresence initial={false} mode="popLayout">
+                  {entries.map((entry, i) => (
+                    <motion.div
+                      key={`${getMentsuLabel(entry)}-${i}`}
+                      layout={!shouldReduceMotion}
+                      initial={shouldReduceMotion ? undefined : { opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] as const }}
+                    >
+                      <MentsuCard
+                        entry={entry}
+                        index={i}
+                        onRemove={() => removeMentsu(i)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {entries.length < 4 && (
+                <motion.button
+                  className="w-full py-2.5 text-sm text-primary font-semibold border-2 border-dashed border-primary/30 rounded-lg hover:bg-primary/5"
+                  onClick={startAddMentsu}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+                >
+                  + もう1組追加（{entries.length}/4）
+                </motion.button>
               )}
-            </div>
-          </div>
-        )}
-      </div>
+
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">面子: {entries.length}/4</span>
+                {mentsuFu > 0 && (
+                  <span className="text-sm font-bold text-primary">
+                    刻子・槓子の符: +{mentsuFu}
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {(phase === 'list' || phase === 'ask-has-mentsu') && phase === 'list' && (
-        <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
-          次へ
-        </Button>
+        <motion.div
+          initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Button className="w-full" size="lg" onClick={() => onSubmit({ waitType, isYakuhaiHead, mentsuFu })}>
+            次へ
+          </Button>
+        </motion.div>
       )}
 
       {phase !== 'ask-has-mentsu' && phase !== 'list' && (

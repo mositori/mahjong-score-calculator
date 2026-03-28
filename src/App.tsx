@@ -1,4 +1,5 @@
 import { useReducer } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { State, Action, HandType, FuInputData } from './types';
 import { calculateFu } from './logic/fuCalculator';
 import { calculateYakuHan, yakuList, doraList } from './logic/yakuList';
@@ -163,13 +164,29 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const shouldReduceMotion = useReducedMotion();
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
-  const animClass = state.transitionDirection === 'back' ? 'step-animate-back' : 'step-animate-forward';
+  const isForward = state.transitionDirection === 'forward';
+
+  const slideVariants = shouldReduceMotion
+    ? { initial: {}, animate: {}, exit: {} }
+    : {
+        initial: { opacity: 0, x: isForward ? 40 : -40 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: isForward ? -40 : 40 },
+      };
 
   return (
     <div className="max-w-md mx-auto px-5 py-8">
-      <h1 className="text-2xl font-bold text-center text-primary mb-4">麻雀点数計算</h1>
+      <motion.h1
+        className="text-2xl font-bold text-center text-primary mb-4"
+        initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        麻雀点数計算
+      </motion.h1>
 
       {state.step !== 'result' && (
         <ProgressBar step={state.step} handType={state.handType} />
@@ -179,61 +196,80 @@ function App() {
         <SelectionSummary state={state} />
       )}
 
-      {showBack && (
-        <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
-          ← 戻る
-        </Button>
-      )}
-
-      <div key={state.stepKey} className={animClass}>
-        {state.step === 'dealer' && (
-          <StepDealer
-            honba={state.honba}
-            onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
-            onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
-          />
+      <AnimatePresence mode="wait" initial={false}>
+        {showBack && (
+          <motion.div
+            key="back-button"
+            initial={shouldReduceMotion ? undefined : { opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.15 }}
+          >
+            <Button variant="ghost" size="sm" className="mb-3 text-muted-foreground" onClick={() => dispatch({ type: 'BACK' })}>
+              ← 戻る
+            </Button>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {state.step === 'winType' && (
-          <StepWinType onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })} />
-        )}
-
-        {state.step === 'handType' && (
-          <StepHandType onSelect={(handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType })} />
-        )}
-
-        {state.step === 'menzen' && (
-          <StepMenzen onSelect={(isMenzen) => dispatch({ type: 'SET_MENZEN', isMenzen })} />
-        )}
-
-        {state.step === 'fuInput' && (
-          <StepFuInput onSubmit={(data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data })} />
-        )}
-
-        {state.step === 'yakuSelect' && (
-          <StepYakuSelect
-            isMenzen={state.isMenzen}
-            handType={state.handType}
-            onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
-          />
-        )}
-
-        {state.step === 'result' && state.isDealer != null && state.isTsumo != null && (() => {
-          const { han, fu, breakdown } = computeResult(state);
-          return (
-            <ResultView
-              isDealer={state.isDealer!}
-              isTsumo={state.isTsumo!}
-              han={han}
-              fu={fu}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={state.stepKey}
+          variants={slideVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const }}
+        >
+          {state.step === 'dealer' && (
+            <StepDealer
               honba={state.honba}
-              breakdown={breakdown}
-              onReset={() => dispatch({ type: 'RESET' })}
-              onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
+              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
+              onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
             />
-          );
-        })()}
-      </div>
+          )}
+
+          {state.step === 'winType' && (
+            <StepWinType onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })} />
+          )}
+
+          {state.step === 'handType' && (
+            <StepHandType onSelect={(handType: HandType) => dispatch({ type: 'SET_HAND_TYPE', handType })} />
+          )}
+
+          {state.step === 'menzen' && (
+            <StepMenzen onSelect={(isMenzen) => dispatch({ type: 'SET_MENZEN', isMenzen })} />
+          )}
+
+          {state.step === 'fuInput' && (
+            <StepFuInput onSubmit={(data: FuInputData) => dispatch({ type: 'SET_FU_INPUT', data })} />
+          )}
+
+          {state.step === 'yakuSelect' && (
+            <StepYakuSelect
+              isMenzen={state.isMenzen}
+              handType={state.handType}
+              onSubmit={(selection) => dispatch({ type: 'SET_YAKU', selection })}
+            />
+          )}
+
+          {state.step === 'result' && state.isDealer != null && state.isTsumo != null && (() => {
+            const { han, fu, breakdown } = computeResult(state);
+            return (
+              <ResultView
+                isDealer={state.isDealer!}
+                isTsumo={state.isTsumo!}
+                han={han}
+                fu={fu}
+                honba={state.honba}
+                breakdown={breakdown}
+                onReset={() => dispatch({ type: 'RESET' })}
+                onResetKeepDealer={() => dispatch({ type: 'RESET_KEEP_DEALER' })}
+              />
+            );
+          })()}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

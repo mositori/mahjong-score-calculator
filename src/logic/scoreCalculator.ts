@@ -23,6 +23,25 @@ export function getTierName(basePoints: number): string | null {
   return null;
 }
 
+export function getTotalPoints(
+  result: ScoreResult,
+  isDealer: boolean,
+  isTsumo: boolean,
+): number {
+  if (!isTsumo && result.ronPayment != null) {
+    return result.ronPayment;
+  }
+  if (isTsumo && isDealer && result.tsumoPaymentNonDealer != null) {
+    return result.tsumoPaymentNonDealer * 3;
+  }
+  if (isTsumo && !isDealer) {
+    const dealer = result.tsumoPaymentDealer ?? 0;
+    const nonDealer = result.tsumoPaymentNonDealer ?? 0;
+    return dealer + nonDealer * 2;
+  }
+  return 0;
+}
+
 export function calculateScore(
   isDealer: boolean,
   isTsumo: boolean,
