@@ -8,7 +8,7 @@ type Props = {
 export function StepDealer({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <>
+    <div className="flex-1 flex flex-col justify-center pb-[20svh]">
       <motion.h2
         className="text-xl font-bold text-center mb-6"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
@@ -35,6 +35,6 @@ export function StepDealer({ onSelect }: Props) {
           </motion.div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

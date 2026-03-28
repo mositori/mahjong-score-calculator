@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import type { State, Action, HandType, FuInputData } from './types';
 import { calculateFu } from './logic/fuCalculator';
@@ -165,6 +165,12 @@ function computeResult(state: State): { han: number; fu: number; breakdown: stri
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const shouldReduceMotion = useReducedMotion();
+  const stepContainerRef = useRef<HTMLDivElement>(null);
+
+  // ステップ切り替え時にトップへスクロール
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [state.stepKey]);
 
   const showBack = state.stepHistory.length > 0 && state.step !== 'result';
   const isForward = state.transitionDirection === 'forward';
@@ -178,7 +184,7 @@ function App() {
       };
 
   return (
-    <div className="max-w-md mx-auto px-5 py-8">
+    <div className="max-w-md mx-auto px-5 py-8 min-h-svh flex flex-col">
       <motion.h1
         className="text-2xl font-bold text-center text-primary mb-4"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
@@ -212,9 +218,11 @@ function App() {
         )}
       </AnimatePresence>
 
+      <div ref={stepContainerRef} className="flex-1 flex flex-col">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={state.stepKey}
+          className="flex-1 flex flex-col"
           variants={slideVariants}
           initial="initial"
           animate="animate"
@@ -273,6 +281,7 @@ function App() {
           })()}
         </motion.div>
       </AnimatePresence>
+      </div>
     </div>
   );
 }

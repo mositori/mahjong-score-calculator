@@ -16,7 +16,7 @@ const options: { label: string; description: string; value: HandType }[] = [
 export function StepHandType({ onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
-    <>
+    <div className="flex-1 flex flex-col justify-center pb-[10svh]">
       <motion.h2
         className="text-xl font-bold text-center mb-5"
         initial={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
@@ -48,6 +48,6 @@ export function StepHandType({ onSelect }: Props) {
           </motion.div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
