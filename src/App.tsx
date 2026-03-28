@@ -223,14 +223,14 @@ function App() {
         >
           {state.step === 'dealer' && (
             <StepDealer
+              honba={state.honba}
+              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
               onSelect={(isDealer) => dispatch({ type: 'SET_DEALER', isDealer })}
             />
           )}
 
           {state.step === 'winType' && (
             <StepWinType
-              honba={state.honba}
-              onHonbaChange={(honba) => dispatch({ type: 'SET_HONBA', honba })}
               onSelect={(isTsumo) => dispatch({ type: 'SET_WIN_TYPE', isTsumo })}
             />
           )}

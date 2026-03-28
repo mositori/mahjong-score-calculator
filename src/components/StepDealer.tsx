@@ -2,10 +2,12 @@ import { motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 
 type Props = {
+  honba: number;
+  onHonbaChange: (honba: number) => void;
   onSelect: (isDealer: boolean) => void;
 };
 
-export function StepDealer({ onSelect }: Props) {
+export function StepDealer({ honba, onHonbaChange, onSelect }: Props) {
   const shouldReduceMotion = useReducedMotion();
   return (
     <>
@@ -34,6 +36,30 @@ export function StepDealer({ onSelect }: Props) {
             </Button>
           </motion.div>
         ))}
+      </div>
+
+      <div className="mt-6">
+        <p className="text-sm text-center mb-3 text-muted-foreground">何本場ですか？</p>
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 text-lg"
+            disabled={honba === 0}
+            onClick={() => onHonbaChange(honba - 1)}
+          >
+            −
+          </Button>
+          <span className="text-lg font-bold tabular-nums w-6 text-center">{honba}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 text-lg"
+            onClick={() => onHonbaChange(honba + 1)}
+          >
+            +
+          </Button>
+        </div>
       </div>
     </>
   );
